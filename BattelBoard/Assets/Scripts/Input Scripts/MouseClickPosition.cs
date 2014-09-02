@@ -15,15 +15,20 @@ public class MouseClickPosition : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(Input.GetButtonDown("Fire1"))
+        if(Input.GetButton("Fire1"))
         {
-            RaycastHit hit;
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hit;
 
-            if(Physics.Raycast(ray, out hit, 1 << 8))
+            if(transform.collider.Raycast(ray, out hit, 100))
             {
                 mousePositionTarget.position = hit.point;
             }
+
+            //if(Physics.Raycast(ray, out hit, 1 << 8))
+            //{
+            //    mousePositionTarget.position = hit.point;
+            //}
         }
     }
 }
