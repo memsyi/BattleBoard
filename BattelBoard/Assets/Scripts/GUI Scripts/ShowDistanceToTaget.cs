@@ -1,29 +1,31 @@
 ﻿using UnityEngine;
-using System.Collections;
 
-public class ShowDistanceToTaget : MonoBehaviour
+namespace Assets.Scripts
 {
-    // Textmesh variables
-    TextMesh textMesh;
-    MoveToMousePosition moveToMousePosition;
-
-    void Awake()
+    public class ShowDistanceToTaget : MonoBehaviour
     {
-        textMesh = GetComponent<TextMesh>();
-        moveToMousePosition = GetComponentInParent<MoveToMousePosition>();
-    }
+        // Textmesh variables
+        TextMesh textMesh;
+        MoveableUnitBehaviour moveToMousePosition;
 
-    // Update is called once per frame
-    void Update()
-    {
-        if(textMesh && moveToMousePosition.enabled)
+        void Start()
         {
-            int distance = (int)moveToMousePosition.GetDistanceToTarget();
-            textMesh.text = distance.ToString();
+            textMesh = GetComponent<TextMesh>();
+            moveToMousePosition = GetComponentInParent<MoveableUnitBehaviour>();
+        }
 
-            // Look to camera
-            transform.LookAt(Camera.main.transform);
-            transform.Rotate(new Vector3(0, 180, 0));
+        // Update is called once per frame
+        void Update()
+        {
+            if(textMesh && moveToMousePosition.enabled)
+            {
+                int distance = (int)moveToMousePosition.GetDistanceToTarget();
+                textMesh.text = distance.ToString();
+
+                // Look to camera
+                transform.LookAt(Camera.main.transform);
+                transform.Rotate(new Vector3(0, 180, 0));
+            }
         }
     }
 }
