@@ -4,8 +4,6 @@ namespace Assets.Scripts
 {
     public class SelectableUnitBehaviour : MonoBehaviour
     {
-        // Movement variables
-
         void Awake()
         {
 
@@ -41,14 +39,6 @@ namespace Assets.Scripts
             }
         }
 
-        private int _movingDistance = 10;
-
-        public int MovingDistance
-        {
-            get { return _movingDistance; }
-            set { _movingDistance = value; }
-        }
-
         private void HandleSelection()
         {
             if (!Input.GetButtonUp("Fire1"))
@@ -56,9 +46,9 @@ namespace Assets.Scripts
                 return;
             }
 
-            var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hitInfo;
-            var distance = 100f;
+            float distance = 100f;
 
             if (transform.collider.Raycast(ray, out hitInfo, distance))
             {

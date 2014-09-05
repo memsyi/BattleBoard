@@ -8,12 +8,21 @@ namespace Assets.Scripts
 
         private SelectableUnitBehaviour _selectableUnitBehaviour;
 
+        [SerializeField]
+        private int _movingDistance = 10;
+
+        public int MovingDistance
+        {
+            get { return _movingDistance; }
+            set { _movingDistance = value; }
+        }
+
         // Use this for initialization
         void Start()
         {
             _selectableUnitBehaviour = gameObject.GetComponentInParent<SelectableUnitBehaviour>();
-            var movingDistance = _selectableUnitBehaviour.MovingDistance;
-            transform.localScale = new Vector3(movingDistance,0,movingDistance);
+
+            transform.localScale = new Vector3(MovingDistance, 0, MovingDistance);
         }
 
         // Update is called once per frame

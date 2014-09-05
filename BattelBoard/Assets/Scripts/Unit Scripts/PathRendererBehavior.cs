@@ -6,11 +6,11 @@ namespace Assets.Scripts
 {
     public class PathRendererBehavior : MonoBehaviour
     {
-        private SelectableUnitBehaviour _selectableUnitBehaviour;
+        //private SelectableUnitBehaviour _selectableUnitBehaviour;
         private MoveableUnitBehaviour _moveableUnitBehaviour;
         private LineRenderer _lineRenderer;
 
-        private bool IsSelected { get { return _selectableUnitBehaviour.IsSelected; } }
+        //private bool IsSelected { get { return _selectableUnitBehaviour.IsSelected; } }
         private float DistaceToTarget { get { return _moveableUnitBehaviour.GetDistanceToTarget(); } }
 
         // Use this for initialization
@@ -34,7 +34,7 @@ namespace Assets.Scripts
         private void Initialize()
         {
             _lineRenderer = gameObject.GetComponent<LineRenderer>();
-            _selectableUnitBehaviour = gameObject.GetComponentInParent<SelectableUnitBehaviour>();
+            //_selectableUnitBehaviour = gameObject.GetComponentInParent<SelectableUnitBehaviour>();
             _moveableUnitBehaviour = gameObject.GetComponentInParent<MoveableUnitBehaviour>();
         }
 

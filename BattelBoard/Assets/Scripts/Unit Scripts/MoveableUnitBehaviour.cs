@@ -7,7 +7,7 @@ namespace Assets.Scripts
     public class MoveableUnitBehaviour : MonoBehaviour
     {
         [SerializeField] 
-        Transform _mousePositionTarget = null;
+        private Transform _mousePositionTarget = null;
 
         private NavMeshAgent _navMeshAgent;
         private SelectableUnitBehaviour _selectableUnitBehaviour;

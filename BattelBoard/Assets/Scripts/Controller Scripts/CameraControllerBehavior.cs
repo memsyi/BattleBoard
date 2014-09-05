@@ -7,11 +7,11 @@ namespace Assets.Scripts
     {
         [SerializeField]
         float
-        _movementSpeed = 0.3f,
-        _rotationSpeed = 1f,
-        _zoomSpeed = 1f,
+            _movementSpeed = 0.3f,
+            _rotationSpeed = 1f,
+            _zoomSpeed = 1f,
 
-        _maximumZoom = 3f;
+            _maximumZoom = 3f;
 
         [SerializeField]
         int _borderWidth = 25;
