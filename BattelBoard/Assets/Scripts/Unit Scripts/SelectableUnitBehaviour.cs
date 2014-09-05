@@ -2,7 +2,7 @@
 
 namespace Assets.Scripts
 {
-    public class SelectableObjectBehaviour : MonoBehaviour
+    public class SelectableUnitBehaviour : MonoBehaviour
     {
         // Movement variables
 

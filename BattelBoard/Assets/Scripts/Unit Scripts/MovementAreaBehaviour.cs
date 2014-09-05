@@ -6,20 +6,20 @@ namespace Assets.Scripts
     public class MovementAreaBehaviour : MonoBehaviour
     {
 
-        private SelectableObjectBehaviour _selectableObjectBehaviour;
+        private SelectableUnitBehaviour _selectableUnitBehaviour;
 
         // Use this for initialization
         void Start()
         {
-            _selectableObjectBehaviour = gameObject.GetComponentInParent<SelectableObjectBehaviour>();
-            var movingDistance = _selectableObjectBehaviour.MovingDistance;
+            _selectableUnitBehaviour = gameObject.GetComponentInParent<SelectableUnitBehaviour>();
+            var movingDistance = _selectableUnitBehaviour.MovingDistance;
             transform.localScale = new Vector3(movingDistance,0,movingDistance);
         }
 
         // Update is called once per frame
         private void Update()
         {
-            renderer.enabled = _selectableObjectBehaviour.IsSelected;
+            renderer.enabled = _selectableUnitBehaviour.IsSelected;
         }
     }
 }

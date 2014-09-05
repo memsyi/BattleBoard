@@ -10,10 +10,9 @@ namespace Assets.Scripts
         Transform _mousePositionTarget = null;
 
         private NavMeshAgent _navMeshAgent;
-        private SelectableObjectBehaviour _selectableObjectBehaviour;
-        private LineRenderer _lineRenderer;
+        private SelectableUnitBehaviour _selectableUnitBehaviour;
 
-        public bool IsSelected { get { return _selectableObjectBehaviour.IsSelected; } }
+        public bool IsSelected { get { return _selectableUnitBehaviour.IsSelected; } }
 
         public int MovingDistance { get; set; }
 
@@ -30,33 +29,25 @@ namespace Assets.Scripts
             {
                 return;
             }
-            if (_selectableObjectBehaviour.IsSelected)
+            if (IsSelected)
             {
                 var destination = _mousePositionTarget.position;
                 SetMovementDestination(destination);
-
             }
-
-            var corners = _navMeshAgent.path.corners;
-            SetLineRendererPositions(corners);
         }
 
         private void Initialize()
         {
             _navMeshAgent = gameObject.GetComponent<NavMeshAgent>();
-            _lineRenderer = gameObject.GetComponent<LineRenderer>();
-            _selectableObjectBehaviour = gameObject.GetComponent<SelectableObjectBehaviour>();
+            _selectableUnitBehaviour = gameObject.GetComponent<SelectableUnitBehaviour>();
 
             MovingDistance = 50;
         }
 
-        private void SetLineRendererPositions(IList<Vector3> pointsOnLine)
+        public IList<Vector3> GetLineRendererPositions()
         {
-            _lineRenderer.SetVertexCount(pointsOnLine.Count);
-            for (var i = 0; i < pointsOnLine.Count; i++)
-            {
-                _lineRenderer.SetPosition(i, pointsOnLine[i]);
-            }
+            var corners = _navMeshAgent.path.corners;
+            return corners;
         }
 
         public float GetDistanceToTarget()
