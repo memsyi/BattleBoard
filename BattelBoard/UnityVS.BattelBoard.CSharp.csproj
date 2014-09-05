@@ -57,6 +57,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Scripts\Controller Scripts\CameraControllerBehavior.cs" />
     <Compile Include="Assets\Scripts\GUI Scripts\ShowDistanceToTaget.cs" />
     <Compile Include="Assets\Scripts\Input Scripts\MouseClickPosition.cs" />
     <Compile Include="Assets\Scripts\TestScript.cs" />
