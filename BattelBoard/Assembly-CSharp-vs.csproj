@@ -48,9 +48,10 @@
   <ItemGroup>
      <Compile Include="Assets\Scripts\Controller Scripts\CameraControllerBehavior.cs" />
      <Compile Include="Assets\Scripts\GUI Scripts\ShowDistanceToTaget.cs" />
-     <Compile Include="Assets\Scripts\Input Scripts\MouseSelectionBehavior.cs" />
+     <Compile Include="Assets\Scripts\Input Scripts\MouseScreenSelectionBehavior.cs" />
+     <Compile Include="Assets\Scripts\Input Scripts\MouseWorldSelectionBehavior.cs" />
      <Compile Include="Assets\Scripts\Input Scripts\ShowMouseClickPositionBehavior.cs" />
-     <Compile Include="Assets\Scripts\TestScript.cs" />
+     <Compile Include="Assets\Scripts\Tags.cs" />
      <Compile Include="Assets\Scripts\Unit Scripts\MoveableUnitBehaviour.cs" />
      <Compile Include="Assets\Scripts\Unit Scripts\MovementAreaBehaviour.cs" />
      <Compile Include="Assets\Scripts\Unit Scripts\PathRendererBehavior.cs" />

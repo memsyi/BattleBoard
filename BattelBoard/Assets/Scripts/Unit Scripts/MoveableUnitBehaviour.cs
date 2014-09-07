@@ -12,7 +12,7 @@ namespace Assets.Scripts
         private NavMeshAgent _navMeshAgent;
         private SelectableUnitBehaviour _selectableUnitBehaviour;
 
-        public bool IsSelected { get { return _selectableUnitBehaviour.IsSelected; } }
+        private bool IsSelected { get { return _selectableUnitBehaviour.IsSelected; } }
 
         public int MovingDistance { get; set; }
 
@@ -32,7 +32,7 @@ namespace Assets.Scripts
             if (IsSelected)
             {
                 var destination = _mousePositionTarget.position;
-                SetMovementDestination(destination);
+                //SetMovementDestination(destination);
             }
         }
 

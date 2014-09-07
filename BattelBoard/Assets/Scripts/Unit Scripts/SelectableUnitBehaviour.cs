@@ -4,22 +4,11 @@ namespace Assets.Scripts
 {
     public class SelectableUnitBehaviour : MonoBehaviour
     {
-        void Awake()
-        {
+        private MouseScreenSelectionBehavior _mouseScreenSelectionBehavior;
 
-        }
+        public bool IsOnScreen { get; private set; }
 
-        // Use this for initialization
-        void Start()
-        {
-
-        }
-
-        // Update is called once per frame
-        void Update()
-        {
-            HandleSelection();
-        }
+        public Vector2 ScreenPosition { get { return Camera.main.WorldToScreenPoint(transform.position); } }
 
         private bool _isSelected;
 
@@ -39,24 +28,46 @@ namespace Assets.Scripts
             }
         }
 
-        private void HandleSelection()
+        // Use this for initialization
+        void Start()
         {
-            if (!Input.GetButtonUp("Fire1"))
-            {
-                return;
-            }
+            Initialize();
+        }
 
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            RaycastHit hitInfo;
-            float distance = 100f;
+        private void Initialize()
+        {
+            _mouseScreenSelectionBehavior = GameObject.FindGameObjectWithTag(Tags.GameController).GetComponent<MouseScreenSelectionBehavior>();
+        }
 
-            if (transform.collider.Raycast(ray, out hitInfo, distance))
+
+        // Update is called once per frame
+        void Update()
+        {
+            CheckWhetherIsOnScreen();
+        }
+
+        private bool IsUnitWithinScreenSpace()
+        {
+            Vector2 _screenPosition = ScreenPosition;
+
+            return _screenPosition.x > 0 && _screenPosition.x < Screen.width
+                && _screenPosition.y > 0 && _screenPosition.y < Screen.height;
+        }
+
+        private void CheckWhetherIsOnScreen()
+        {
+            if (_mouseScreenSelectionBehavior)
             {
-                IsSelected = !IsSelected;
-            }
-            else if (IsSelected)
-            {
-                IsSelected = false;
+                if (!IsOnScreen && IsUnitWithinScreenSpace())
+                {
+                    _mouseScreenSelectionBehavior.UnitsOnScreenList.Add(this);
+                    IsOnScreen = true;
+                }
+                else if(IsOnScreen && !IsUnitWithinScreenSpace())
+                {
+                    _mouseScreenSelectionBehavior.UnitsOnScreenList.Remove(this);
+                    IsOnScreen = false;
+                }
             }
         }
     }
