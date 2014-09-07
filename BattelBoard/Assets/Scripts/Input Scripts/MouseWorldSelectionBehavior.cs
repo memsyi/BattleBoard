@@ -6,7 +6,6 @@ namespace Assets.Scripts
 {
     public class MouseWorldSelectionBehavior : MonoBehaviour
     {
-
         public bool IsDragging { get; private set; }
 
         public List<SelectableUnitBehaviour> UnitsOnScreenList { get; set; }
