@@ -6,6 +6,9 @@ namespace Assets.Scripts
 {
     public class MoveableUnitBehaviour : MonoBehaviour
     {
+        [SerializeField]
+        bool _moveable = true;
+
         [SerializeField] 
         private Transform _mousePositionTarget = null;
 
@@ -32,7 +35,11 @@ namespace Assets.Scripts
             if (IsSelected)
             {
                 var destination = _mousePositionTarget.position;
-                //SetMovementDestination(destination);
+
+                if (_moveable)
+                {
+                    SetMovementDestination(destination);
+                }
             }
         }
 

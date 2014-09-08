@@ -7,11 +7,12 @@ namespace Assets.Scripts
     {
         [SerializeField]
         float
-            _movementSpeed = 0.3f,
+            _movementSpeed = 1f,
             _rotationSpeed = 1f,
             _zoomSpeed = 1f,
 
-            _maximumZoom = 3f;
+            _maximumZoom = 3f, _minimumZoom = 20f,
+            _zoomDownAngle = 20f;
 
         [SerializeField]
         int _borderWidth = 25;
@@ -33,13 +34,13 @@ namespace Assets.Scripts
         {
             if (Input.GetButton("Horizontal"))
             {
-                transform.position += transform.right * Input.GetAxis("Horizontal") * _movementSpeed;
+                transform.position += transform.right * Input.GetAxis("Horizontal") * _movementSpeed * 0.3f * HeightMultiplier();
             }
             if (Input.GetButton("Vertical"))
             {
                 float _yPostion = transform.position.y;
 
-                transform.position += transform.forward * Input.GetAxis("Vertical") * _movementSpeed;
+                transform.position += transform.forward * Input.GetAxis("Vertical") * _movementSpeed * 0.3f * HeightMultiplier();
 
                 transform.position = new Vector3(transform.position.x, _yPostion, transform.position.z);
             }
@@ -52,6 +53,13 @@ namespace Assets.Scripts
             {
                 RotateRight();
             }
+        }
+
+        private float HeightMultiplier()
+        {
+            float _heightMuliplier = transform.position.y / _minimumZoom * 4;
+
+            return _heightMuliplier;
         }
 
         private void HandleMouseInput()
@@ -102,14 +110,14 @@ namespace Assets.Scripts
         private void RotateUp()
         {
             transform.rotation = Quaternion.Euler(
-                transform.rotation.eulerAngles.x - _rotationSpeed,
+                transform.rotation.eulerAngles.x >= 5 ? transform.rotation.eulerAngles.x - _rotationSpeed : 4.9f,
                 transform.rotation.eulerAngles.y,
                 0);
         }
         private void RotateDown()
         {
             transform.rotation = Quaternion.Euler(
-                transform.rotation.eulerAngles.x + _rotationSpeed,
+                transform.rotation.eulerAngles.x <= 85 ? transform.rotation.eulerAngles.x + _rotationSpeed : 85.1f,
                 transform.rotation.eulerAngles.y,
                 0);
         }
@@ -118,14 +126,39 @@ namespace Assets.Scripts
         #region Zoom
         private void ZoomIn()
         {
-            if (transform.position.y > _maximumZoom)
+
+            if (transform.rotation.eulerAngles.x > _zoomDownAngle
+             && transform.position.y > _maximumZoom)
             {
                 transform.position += transform.forward * _zoomSpeed;
+            }
+            else
+            {
+                transform.position += Vector3.down * _zoomSpeed;
+            }
+
+            if (transform.position.y < _maximumZoom)
+            {
+                transform.position = new Vector3(transform.position.x, _maximumZoom, transform.position.z);
             }
         }
         private void ZoomOut()
         {
-            transform.position -= transform.forward * _zoomSpeed;
+
+            if (transform.rotation.eulerAngles.x > _zoomDownAngle
+             && transform.position.y < _minimumZoom)
+            {
+                transform.position -= transform.forward * _zoomSpeed;
+            }
+            else
+            {
+                transform.position += Vector3.up * _zoomSpeed;
+            }
+
+            if (transform.position.y > _minimumZoom)
+            {
+                transform.position = new Vector3(transform.position.x, _minimumZoom, transform.position.z);
+            }
         }
         #endregion
     }
