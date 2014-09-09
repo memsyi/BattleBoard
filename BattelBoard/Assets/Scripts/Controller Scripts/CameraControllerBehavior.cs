@@ -12,15 +12,80 @@ namespace Assets.Scripts
             _zoomSpeed = 1f,
 
             _maximumZoom = 3f, _minimumZoom = 20f,
-            _zoomDownAngle = 20f;
+            _zoomDownAngle = 20f,
+            _heightMultiplier = 4;
+
+        private float HeightMultiplier
+        {
+            get 
+            {
+                var _muliplier = transform.position.y * GeneralMultiplier *_heightMultiplier;
+
+                return _muliplier; 
+            }
+            set { _heightMultiplier = value; }
+        }
+
+        private float ZoomDownAngle
+        {
+            get { return _zoomDownAngle; }
+            set { _zoomDownAngle = value; }
+        }
+
+        private float MinimumZoom
+        {
+            get { return _minimumZoom; }
+            set { _minimumZoom = value; }
+        }
+
+        private float MaximumZoom
+        {
+            get { return _maximumZoom; }
+            set { _maximumZoom = value; }
+        }
+
+        private float ZoomSpeed
+        {
+            get { return _zoomSpeed; }
+            set { _zoomSpeed = value; }
+        }
+
+        private float RotationSpeed
+        {
+            get { return _rotationSpeed; }
+            set { _rotationSpeed = value; }
+        }
+
+        private float MovementSpeed
+        {
+            get { return _movementSpeed; }
+            set { _movementSpeed = value; }
+        }
 
         [SerializeField]
         int _borderWidth = 25;
 
+        private int BorderWidth
+        {
+            get { return _borderWidth; }
+            set { _borderWidth = value; }
+        }
+
+        private float GeneralMultiplier
+        {
+            get { return 0.3f; }
+        }
+
+        private Quaternion StartRotation
+        {
+            get;
+            set;
+        }
+
         // Use this for initialization
         void Start()
         {
-
+            StartRotation = transform.rotation;
         }
 
         // Update is called once per frame
@@ -32,19 +97,18 @@ namespace Assets.Scripts
 
         private void HandleKeyboardInput()
         {
-            if (Input.GetButton("Horizontal"))
-            {
-                transform.position += transform.right * Input.GetAxis("Horizontal") * _movementSpeed * 0.3f * HeightMultiplier();
-            }
+            #region Movement
             if (Input.GetButton("Vertical"))
             {
-                float _yPostion = transform.position.y;
-
-                transform.position += transform.forward * Input.GetAxis("Vertical") * _movementSpeed * 0.3f * HeightMultiplier();
-
-                transform.position = new Vector3(transform.position.x, _yPostion, transform.position.z);
+                MoveForwardBackward(Input.GetAxis("Vertical"));
             }
+            if (Input.GetButton("Horizontal"))
+            {
+                MoveRightLeft(Input.GetAxis("Horizontal"));
+            } 
+            #endregion
 
+            #region Rotation
             if (Input.GetKey(KeyCode.Q))
             {
                 RotateLeft();
@@ -52,72 +116,120 @@ namespace Assets.Scripts
             else if (Input.GetKey(KeyCode.E))
             {
                 RotateRight();
+            } 
+            #endregion
+
+            #region Zoom
+            if (Input.GetKey(KeyCode.KeypadPlus))
+            {
+                ZoomIn();
             }
-        }
+            else if (Input.GetKey(KeyCode.KeypadMinus))
+            {
+                ZoomOut();
+            }
+            #endregion
 
-        private float HeightMultiplier()
-        {
-            float _heightMuliplier = transform.position.y / _minimumZoom * 4;
-
-            return _heightMuliplier;
+            if(Input.GetKey(KeyCode.Backspace) || Input.GetKey(KeyCode.Keypad0))
+            {
+                transform.rotation = StartRotation;
+            }
         }
 
         private void HandleMouseInput()
         {
-            if (Input.mousePosition.x < _borderWidth)
+            #region Mousewheel - Movement and Zoom
+            if (Input.GetMouseButton(2)) // Mousewheel
             {
-                RotateLeft();
-            }
-            else if (Input.mousePosition.x > Screen.width - _borderWidth)
-            {
-                RotateRight();
-            }
+                MoveForwardBackward(-Input.GetAxis("Mouse Y"));
+                MoveRightLeft(-Input.GetAxis("Mouse X"));
 
-            if (Input.mousePosition.y < _borderWidth)
-            {
-                RotateDown();
-            }
-            else if (Input.mousePosition.y > Screen.height - _borderWidth)
-            {
-                RotateUp();
+                return;
             }
 
             if (Input.GetAxis("Mouse ScrollWheel") > 0)
             {
                 ZoomIn();
+
+                return;
             }
             else if (Input.GetAxis("Mouse ScrollWheel") < 0)
             {
                 ZoomOut();
+
+                return;
             }
+            #endregion
+
+            #region Mouse screenposition - Rotation
+            if (Input.mousePosition.x < BorderWidth)
+            {
+                RotateLeft();
+
+                return;
+            }
+            if (Input.mousePosition.x > Screen.width - BorderWidth)
+            {
+                RotateRight();
+
+                return;
+            }
+            if (Input.mousePosition.y < BorderWidth)
+            {
+                RotateDown();
+
+                return;
+            }
+            if (Input.mousePosition.y > Screen.height - BorderWidth)
+            {
+                RotateUp();
+
+                return;
+            } 
+            #endregion
         }
+
+        #region Movement
+        private void MoveForwardBackward(float movement)
+        {
+            var _yPostion = transform.position.y;
+
+            transform.position += Vector3.forward * MovementSpeed * GeneralMultiplier * HeightMultiplier * movement;
+
+            transform.position = new Vector3(transform.position.x, _yPostion, transform.position.z);
+        }
+        private void MoveRightLeft(float movement)
+        {
+            transform.position += Vector3.right * MovementSpeed * GeneralMultiplier * HeightMultiplier * movement;
+        }
+        #endregion
 
         #region Rotation
         private void RotateLeft()
         {
             transform.rotation = Quaternion.Euler(
                 transform.rotation.eulerAngles.x,
-                transform.rotation.eulerAngles.y - _rotationSpeed,
+                transform.rotation.eulerAngles.y - RotationSpeed,
                 0);
         }
         private void RotateRight()
         {
             transform.rotation = Quaternion.Euler(
                 transform.rotation.eulerAngles.x,
-                transform.rotation.eulerAngles.y + _rotationSpeed,
+                transform.rotation.eulerAngles.y + RotationSpeed,
                 0);
         }
         private void RotateUp()
         {
             transform.rotation = Quaternion.Euler(
-                transform.rotation.eulerAngles.x >= 5 ? transform.rotation.eulerAngles.x - _rotationSpeed : 4.9f,
+                transform.rotation.eulerAngles.x >= 5 ? transform.rotation.eulerAngles.x - RotationSpeed : 4.9f,
                 transform.rotation.eulerAngles.y,
                 0);
         }
         private void RotateDown()
         {
             transform.rotation = Quaternion.Euler(
-                transform.rotation.eulerAngles.x <= 85 ? transform.rotation.eulerAngles.x + _rotationSpeed : 85.1f,
+                transform.rotation.eulerAngles.x <= 85 ? transform.rotation.eulerAngles.x + RotationSpeed : 85.1f,
                 transform.rotation.eulerAngles.y,
                 0);
         }
@@ -127,37 +239,37 @@ namespace Assets.Scripts
         private void ZoomIn()
         {
 
-            if (transform.rotation.eulerAngles.x > _zoomDownAngle
-             && transform.position.y > _maximumZoom)
+            if (transform.rotation.eulerAngles.x > ZoomDownAngle
+             && transform.position.y > MaximumZoom)
             {
-                transform.position += transform.forward * _zoomSpeed;
+                transform.position += transform.forward * ZoomSpeed * HeightMultiplier;
             }
             else
             {
-                transform.position += Vector3.down * _zoomSpeed;
+                transform.position += Vector3.down * ZoomSpeed * HeightMultiplier;
             }
 
-            if (transform.position.y < _maximumZoom)
+            if (transform.position.y < MaximumZoom)
             {
-                transform.position = new Vector3(transform.position.x, _maximumZoom, transform.position.z);
+                transform.position = new Vector3(transform.position.x, MaximumZoom, transform.position.z);
             }
         }
         private void ZoomOut()
         {
 
-            if (transform.rotation.eulerAngles.x > _zoomDownAngle
-             && transform.position.y < _minimumZoom)
+            if (transform.rotation.eulerAngles.x > ZoomDownAngle
+             && transform.position.y < MinimumZoom)
             {
-                transform.position -= transform.forward * _zoomSpeed;
+                transform.position -= transform.forward * ZoomSpeed * HeightMultiplier;
             }
             else
             {
-                transform.position += Vector3.up * _zoomSpeed;
+                transform.position += Vector3.up * ZoomSpeed * HeightMultiplier;
             }
 
-            if (transform.position.y > _minimumZoom)
+            if (transform.position.y > MinimumZoom)
             {
-                transform.position = new Vector3(transform.position.x, _minimumZoom, transform.position.z);
+                transform.position = new Vector3(transform.position.x, MinimumZoom, transform.position.z);
             }
         }
         #endregion
