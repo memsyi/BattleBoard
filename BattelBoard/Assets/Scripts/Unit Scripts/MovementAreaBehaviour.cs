@@ -7,6 +7,7 @@ namespace Assets.Scripts
     {
 
         private SelectableUnitBehaviour _selectableUnitBehaviour;
+        private SpriteRenderer _spriteRenderer;
 
         [SerializeField]
         private int _movingDistance = 10;
@@ -21,14 +22,15 @@ namespace Assets.Scripts
         void Start()
         {
             _selectableUnitBehaviour = gameObject.GetComponentInParent<SelectableUnitBehaviour>();
+            _spriteRenderer = GetComponentInChildren<SpriteRenderer>();
 
-            transform.localScale = new Vector3(MovingDistance, 0, MovingDistance);
+            transform.localScale = new Vector3(MovingDistance, 1, MovingDistance);
         }
 
         // Update is called once per frame
         private void Update()
         {
-            renderer.enabled = _selectableUnitBehaviour.IsSelected;
+            _spriteRenderer.enabled = _selectableUnitBehaviour.IsSelected;
         }
     }
 }

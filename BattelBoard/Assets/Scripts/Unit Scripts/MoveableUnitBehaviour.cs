@@ -45,8 +45,8 @@ namespace Assets.Scripts
 
         private void Initialize()
         {
-            _navMeshAgent = gameObject.GetComponent<NavMeshAgent>();
-            _selectableUnitBehaviour = gameObject.GetComponent<SelectableUnitBehaviour>();
+            _navMeshAgent = GetComponent<NavMeshAgent>();
+            _selectableUnitBehaviour = GetComponent<SelectableUnitBehaviour>();
 
             MovingDistance = 50;
         }
