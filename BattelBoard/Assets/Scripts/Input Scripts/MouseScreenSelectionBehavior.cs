@@ -15,6 +15,9 @@ namespace Assets.Scripts
         public bool IsDragging { get; private set; }
 
         public List<SelectableUnitBehaviour> UnitsOnScreenList { get; set; }
+        public SelectableUnitBehaviour DirectSelectedUnit { get; private set; }
+
+        bool _hasSelected;
 
         void Start()
         {
@@ -44,7 +47,7 @@ namespace Assets.Scripts
 
         private void HandleMouseSelection()
         {
-            if (Input.GetMouseButtonDown(0))
+            if (Input.GetButtonDown("Fire1"))
             {
                 MouseEnter();
             }
@@ -54,7 +57,7 @@ namespace Assets.Scripts
                 CheckMouseDraggingSelection();
             }
 
-            if (Input.GetMouseButtonUp(0))
+            if (Input.GetButtonUp("Fire1"))
             {
                 MouseExit();
             }
@@ -69,29 +72,7 @@ namespace Assets.Scripts
 
             _mouseSelectionArea = new Rect(_mouseStartSelection.x, _mouseStartSelection.y, 0, 0);
 
-            // Direct selection
-            //Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            //RaycastHit hitInfo;
-            //float distance = 100f;
-
-            //if (Physics.Raycast(ray, out hitInfo, distance))
-            //{
-            //    var selectableUnit = hitInfo.transform.GetComponent<SelectableUnitBehaviour>();
-
-            //    print(hitInfo.transform.name);
-
-            //    if(selectableUnit)
-            //    {
-            //        if(!selectableUnit.IsSelected)
-            //        {
-            //            selectableUnit.IsSelected = true;
-            //        }
-            //        else
-            //        {
-            //            selectableUnit.IsSelected = false;
-            //        }
-            //    }
-            //}
+            IsUnitHitByMouse();
         }
 
         private void CalculateMouseDraggingRectangle()
@@ -125,20 +106,29 @@ namespace Assets.Scripts
 
         private void CheckMouseDraggingSelection()
         {
+            var _selection = false;
+
             foreach (var unit in UnitsOnScreenList)
             {
-                if (!IsUnitWithinDraggingRectangle(unit.ScreenPosition))
+                if (IsUnitWithinDraggingRectangle(unit.ScreenPosition) || unit == DirectSelectedUnit)
+                {
+                    if (!unit.IsSelected)
+                    {
+                        unit.IsSelected = true;
+                    }
+
+                    _selection = true;
+                }
+                else// if (!DirectSelectedUnit)
                 {
                     if (unit.IsSelected)
                     {
                         unit.IsSelected = false;
                     }
                 }
-                else if (!unit.IsSelected)
-                {
-                    unit.IsSelected = true;
-                }
             }
+
+            _hasSelected = _selection;
         }
 
         private bool IsUnitWithinDraggingRectangle(Vector2 screenPosition)
@@ -147,8 +137,47 @@ namespace Assets.Scripts
                 && screenPosition.y > Screen.height - _mouseSelectionArea.y - _mouseSelectionArea.height && screenPosition.y < Screen.height - _mouseSelectionArea.y;
         }
 
+        private bool IsUnitHitByMouse()
+        {
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hitInfo;
+            float distance = 100f;
+
+            if (Physics.Raycast(ray, out hitInfo, distance))
+            {
+                DirectSelectedUnit = hitInfo.transform.GetComponent<SelectableUnitBehaviour>();
+
+                //if (DirectSelectedUnit)
+                //{
+                //    if (!DirectSelectedUnit.IsSelected)
+                //    {
+                //        DirectSelectedUnit.IsSelected = true;
+                //    }
+                //    else
+                //    {
+                //        DirectSelectedUnit.IsSelected = false;
+                //    }
+                //}
+            }
+
+            return false;
+        }
+
         private void MouseExit()
         {
+            if (!_hasSelected)
+            {
+                IsDragging = false;
+                return;
+            }
+
+            StartCoroutine(StopDragging());
+        }
+
+        IEnumerator StopDragging()
+        {
+            yield return new WaitForEndOfFrame();
+
             IsDragging = false;
         }
     }

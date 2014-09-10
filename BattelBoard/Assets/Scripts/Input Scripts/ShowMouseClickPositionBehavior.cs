@@ -8,16 +8,18 @@ namespace Assets.Scripts
         [SerializeField]
         private Transform mousePositionTarget = null;
 
+        private MouseScreenSelectionBehavior _mouseScreenSelectionBehavior;
+
         // Use this for initialization
         void Start()
         {
-
+            _mouseScreenSelectionBehavior = GameObject.FindGameObjectWithTag(Tags.GameController).GetComponent<MouseScreenSelectionBehavior>();
         }
 
         // Update is called once per frame
         void Update()
         {
-            if (Input.GetButtonDown("Fire1"))
+            if (Input.GetButtonUp("Fire1") && !_mouseScreenSelectionBehavior.IsDragging)
             {
                 Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
                 RaycastHit hitInfo;

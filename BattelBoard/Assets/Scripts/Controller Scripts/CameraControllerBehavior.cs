@@ -5,6 +5,7 @@ namespace Assets.Scripts
 {
     public class CameraControllerBehavior : MonoBehaviour
     {
+        #region Variables
         [SerializeField]
         float
             _movementSpeed = 1f,
@@ -17,11 +18,11 @@ namespace Assets.Scripts
 
         private float HeightMultiplier
         {
-            get 
+            get
             {
-                var _muliplier = transform.position.y * GeneralMultiplier *_heightMultiplier;
+                var _muliplier = transform.position.y * GeneralMultiplier * _heightMultiplier;
 
-                return _muliplier; 
+                return _muliplier;
             }
             set { _heightMultiplier = value; }
         }
@@ -80,7 +81,8 @@ namespace Assets.Scripts
         {
             get;
             set;
-        }
+        } 
+        #endregion
 
         // Use this for initialization
         void Start()
@@ -100,11 +102,11 @@ namespace Assets.Scripts
             #region Movement
             if (Input.GetButton("Vertical"))
             {
-                MoveForwardBackward(Input.GetAxis("Vertical"));
+                MoveForwardBackward(Input.GetAxis("Vertical") * GeneralMultiplier);
             }
             if (Input.GetButton("Horizontal"))
             {
-                MoveRightLeft(Input.GetAxis("Horizontal"));
+                MoveRightLeft(Input.GetAxis("Horizontal") * GeneralMultiplier);
             } 
             #endregion
 
