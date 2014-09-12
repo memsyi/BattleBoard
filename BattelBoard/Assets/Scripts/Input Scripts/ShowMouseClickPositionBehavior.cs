@@ -1,55 +1,35 @@
-﻿using System;
-using UnityEditorInternal;
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections;
 
 namespace Assets.Scripts
 {
-    public delegate void MousePostionChangedEventHandler(object sender, EventArgs e);
-
     public class ShowMouseClickPositionBehavior : MonoBehaviour
     {
         [SerializeField]
-        private Transform _mousePositionTarget = null;
+        private Transform mousePositionTarget = null;
 
-        public Transform MousePositionTarget { get { return _mousePositionTarget; } }
-
-        public event MousePostionChangedEventHandler MousePositionChanged;
-
+        private MouseScreenSelectionBehavior _mouseScreenSelectionBehavior;
 
         // Use this for initialization
         void Start()
         {
+            _mouseScreenSelectionBehavior = GameObject.FindGameObjectWithTag(Tags.GameController).GetComponent<MouseScreenSelectionBehavior>();
         }
 
         // Update is called once per frame
         void Update()
         {
-            SetMouseClickPosition();
-        }
-
-        private void SetMouseClickPosition()
-        {
-            if (Input.GetButtonDown("Fire1"))
+            if (Input.GetButtonUp("Fire1") && !_mouseScreenSelectionBehavior.IsDragging)
             {
-                var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
                 RaycastHit hitInfo;
+                float distance = 100f;
 
-                var isRaycastColliding = Physics.Raycast(ray, out hitInfo);
-
-                if (isRaycastColliding && hitInfo.transform.tag == Tags.Ground)
+                if (transform.collider.Raycast(ray, out hitInfo, distance))
                 {
-                    _mousePositionTarget.position = hitInfo.point;
-                    InvokeMousePositionChanged(new EventArgs());
+                    mousePositionTarget.position = hitInfo.point;
                 }
             }
-
-        }
-
-        private void InvokeMousePositionChanged(EventArgs e)
-        {
-            if (MousePositionChanged != null)
-                MousePositionChanged(this, e);
         }
     }
 }

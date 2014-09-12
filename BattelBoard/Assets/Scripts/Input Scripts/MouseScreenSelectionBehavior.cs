@@ -1,6 +1,4 @@
-﻿using System;
-using System.Linq;
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -11,27 +9,12 @@ namespace Assets.Scripts
         [SerializeField]
         GUISkin _mouseDragSkin = null;
 
-        [SerializeField]
-        private float _minimalDraggingDistance;
-
-        public float MinimalDraggingDistance
-        {
-            get { return _minimalDraggingDistance; }
-        }
-
         private Rect _mouseSelectionArea;
-        public Vector2 MouseSelectionStartPosition { get; private set; }
+        private Vector2 _mouseStartSelection;
 
-        public List<SelectableUnitBehaviour> UnitsOnScreen { get; set; }
+        public bool IsDragging { get; private set; }
 
-        public List<SelectableUnitBehaviour> CurrentlySelectedUnits
-        {
-            get
-            {
-                return UnitsOnScreen.Where(x => x.IsSelected).ToList();
-            }
-        }
-
+        public List<SelectableUnitBehaviour> UnitsOnScreenList { get; set; }
         public SelectableUnitBehaviour DirectSelectedUnit { get; private set; }
 
         bool _hasSelected;
@@ -43,7 +26,7 @@ namespace Assets.Scripts
 
         private void Initialize()
         {
-            UnitsOnScreen = new List<SelectableUnitBehaviour>();
+            UnitsOnScreenList = new List<SelectableUnitBehaviour>();
         }
 
         // Update is called once per frame
@@ -54,7 +37,7 @@ namespace Assets.Scripts
 
         void OnGUI()
         {
-            if (!IsDragging())
+            if (!IsDragging)
             {
                 return;
             }
@@ -62,23 +45,18 @@ namespace Assets.Scripts
             GUI.Box(_mouseSelectionArea, "", _mouseDragSkin.box);
         }
 
-
-
         private void HandleMouseSelection()
         {
-            if (Input.GetButtonDown("Fire2"))
-            {
-                CurrentlySelectedUnits.ForEach(x => x.IsSelected = false);
-            }
             if (Input.GetButtonDown("Fire1"))
             {
                 MouseEnter();
             }
-            else if (IsDragging())
+            else if (IsDragging)
             {
                 CalculateMouseDraggingRectangle();
                 CheckMouseDraggingSelection();
             }
+
             if (Input.GetButtonUp("Fire1"))
             {
                 MouseExit();
@@ -87,9 +65,12 @@ namespace Assets.Scripts
 
         private void MouseEnter()
         {
-            MouseSelectionStartPosition = new Vector2(Input.mousePosition.x, Screen.height - Input.mousePosition.y);
+            IsDragging = true;
 
-            _mouseSelectionArea = new Rect(MouseSelectionStartPosition.x, MouseSelectionStartPosition.y, 0, 0);
+            _mouseStartSelection.x = Input.mousePosition.x;
+            _mouseStartSelection.y = Screen.height - Input.mousePosition.y;
+
+            _mouseSelectionArea = new Rect(_mouseStartSelection.x, _mouseStartSelection.y, 0, 0);
 
             IsUnitHitByMouse();
         }
@@ -100,34 +81,34 @@ namespace Assets.Scripts
             currentMousePosition.x = Input.mousePosition.x;
             currentMousePosition.y = Screen.height - Input.mousePosition.y;
 
-            _mouseSelectionArea.width = Mathf.Abs(currentMousePosition.x - MouseSelectionStartPosition.x);
+            _mouseSelectionArea.width = Mathf.Abs(currentMousePosition.x - _mouseStartSelection.x);
 
-            if (currentMousePosition.x < MouseSelectionStartPosition.x)
+            if (currentMousePosition.x < _mouseStartSelection.x)
             {
                 _mouseSelectionArea.x = currentMousePosition.x;
             }
             else
             {
-                _mouseSelectionArea.x = MouseSelectionStartPosition.x;
+                _mouseSelectionArea.x = _mouseStartSelection.x;
             }
 
-            _mouseSelectionArea.height = Mathf.Abs(currentMousePosition.y - MouseSelectionStartPosition.y);
+            _mouseSelectionArea.height = Mathf.Abs(currentMousePosition.y - _mouseStartSelection.y);
 
-            if (currentMousePosition.y < MouseSelectionStartPosition.y)
+            if (currentMousePosition.y < _mouseStartSelection.y)
             {
                 _mouseSelectionArea.y = currentMousePosition.y;
             }
             else
             {
-                _mouseSelectionArea.y = MouseSelectionStartPosition.y;
+                _mouseSelectionArea.y = _mouseStartSelection.y;
             }
         }
 
         private void CheckMouseDraggingSelection()
         {
-            var selection = false;
+            var _selection = false;
 
-            foreach (var unit in UnitsOnScreen)
+            foreach (var unit in UnitsOnScreenList)
             {
                 if (IsUnitWithinDraggingRectangle(unit.ScreenPosition) || unit == DirectSelectedUnit)
                 {
@@ -135,7 +116,8 @@ namespace Assets.Scripts
                     {
                         unit.IsSelected = true;
                     }
-                    selection = true;
+
+                    _selection = true;
                 }
                 else// if (!DirectSelectedUnit)
                 {
@@ -146,7 +128,7 @@ namespace Assets.Scripts
                 }
             }
 
-            _hasSelected = selection;
+            _hasSelected = _selection;
         }
 
         private bool IsUnitWithinDraggingRectangle(Vector2 screenPosition)
@@ -155,11 +137,11 @@ namespace Assets.Scripts
                 && screenPosition.y > Screen.height - _mouseSelectionArea.y - _mouseSelectionArea.height && screenPosition.y < Screen.height - _mouseSelectionArea.y;
         }
 
-        private Void IsUnitHitByMouse()
+        private bool IsUnitHitByMouse()
         {
-            var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hitInfo;
-            var distance = 100f;
+            float distance = 100f;
 
             if (Physics.Raycast(ray, out hitInfo, distance))
             {
@@ -177,12 +159,15 @@ namespace Assets.Scripts
                 //    }
                 //}
             }
+
+            return false;
         }
 
         private void MouseExit()
         {
             if (!_hasSelected)
             {
+                IsDragging = false;
                 return;
             }
 
@@ -193,13 +178,7 @@ namespace Assets.Scripts
         {
             yield return new WaitForEndOfFrame();
 
-        }
-
-        public bool IsDragging()
-        {
-            var currentPosition = new Vector2(Input.mousePosition.x, Screen.height - Input.mousePosition.y);
-            return Vector2.Distance(currentPosition, MouseSelectionStartPosition) >= MinimalDraggingDistance
-                && Input.GetButton("Fire1");
+            IsDragging = false;
         }
     }
 }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Security.Cryptography;
 using UnityEngine;
 
 namespace Assets.Scripts
@@ -8,37 +7,17 @@ namespace Assets.Scripts
     public class MoveableUnitBehaviour : MonoBehaviour
     {
         [SerializeField]
-        private bool _isMoveable = true;
+        bool _moveable = true;
 
-        [SerializeField]
+        [SerializeField] 
         private Transform _mousePositionTarget = null;
 
         private NavMeshAgent _navMeshAgent;
         private SelectableUnitBehaviour _selectableUnitBehaviour;
-        private ShowMouseClickPositionBehavior _showMouseClickPositionBehavior;
 
-        public bool IsSelected { get { return _selectableUnitBehaviour.IsSelected; } }
+        private bool IsSelected { get { return _selectableUnitBehaviour.IsSelected; } }
 
-        public bool IsMovable
-        {
-            get
-            {
-                return _isMoveable;
-            }
-            set
-            {
-                _isMoveable = value;
-            }
-        }
-
-        public int MovingDistance
-        {
-            get
-            {
-                var movementArea = transform.GetComponentInChildren<MovementAreaBehaviour>();
-                return movementArea.MovingDistance;
-            }
-        }
+        public int MovingDistance { get; set; }
 
         // Use this for initialization
         void Start()
@@ -49,16 +28,27 @@ namespace Assets.Scripts
         // Update is called once per frame
         void Update()
         {
-            
+            if (_mousePositionTarget == null)
+            {
+                return;
+            }
+            if (IsSelected)
+            {
+                var destination = _mousePositionTarget.position;
+
+                if (_moveable)
+                {
+                    SetMovementDestination(destination);
+                }
+            }
         }
 
         private void Initialize()
         {
             _navMeshAgent = GetComponent<NavMeshAgent>();
             _selectableUnitBehaviour = GetComponent<SelectableUnitBehaviour>();
-            _showMouseClickPositionBehavior = GameObject.FindGameObjectWithTag(Tags.Ground).GetComponent<ShowMouseClickPositionBehavior>();
 
-            _showMouseClickPositionBehavior.MousePositionChanged += OnMousePositionChanged;
+            MovingDistance = 50;
         }
 
         public IList<Vector3> GetLineRendererPositions()
@@ -83,24 +73,6 @@ namespace Assets.Scripts
         private void SetMovementDestination(Vector3 destination)
         {
             _navMeshAgent.SetDestination(destination);
-        }
-
-        private void OnMousePositionChanged(object mouseClickPosition, EventArgs e)
-        {
-            var destination = _mousePositionTarget.position;
-            var heading = destination - transform.position;
-            var distance = heading.magnitude;
-            var direction = heading/distance;
-
-            if (distance >= MovingDistance)
-            {
-                heading = direction*MovingDistance;
-                destination = heading + transform.position;
-            }
-            if (IsSelected)
-            {
-                SetMovementDestination(destination);
-            }
         }
     }
 }

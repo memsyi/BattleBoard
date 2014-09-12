@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Assets.Scripts
 {
@@ -23,11 +22,9 @@ namespace Assets.Scripts
                 if (_isSelected)
                 {
                     renderer.material.color *= 2f;
+                    return;
                 }
-                else
-                {
-                    renderer.material.color *= 0.5f;
-                }
+                renderer.material.color *= 0.5f;
             }
         }
 
@@ -46,33 +43,31 @@ namespace Assets.Scripts
         // Update is called once per frame
         void Update()
         {
-            CheckIfUnitIsOnScreen();
+            CheckWhetherIsOnScreen();
         }
 
         private bool IsUnitWithinScreenSpace()
         {
-            var screenPosition = ScreenPosition;
+            Vector2 _screenPosition = ScreenPosition;
 
-            return screenPosition.x > 0 && screenPosition.x < Screen.width
-                && screenPosition.y > 0 && screenPosition.y < Screen.height;
+            return _screenPosition.x > 0 && _screenPosition.x < Screen.width
+                && _screenPosition.y > 0 && _screenPosition.y < Screen.height;
         }
 
-        private void CheckIfUnitIsOnScreen()
+        private void CheckWhetherIsOnScreen()
         {
-            if (_mouseScreenSelectionBehavior == null)
+            if (_mouseScreenSelectionBehavior)
             {
-                return;
-            }
-
-            if (!IsOnScreen && IsUnitWithinScreenSpace())
-            {
-                _mouseScreenSelectionBehavior.UnitsOnScreen.Add(this);
-                IsOnScreen = true;
-            }
-            else if (IsOnScreen && !IsUnitWithinScreenSpace())
-            {
-                _mouseScreenSelectionBehavior.UnitsOnScreen.Remove(this);
-                IsOnScreen = false;
+                if (!IsOnScreen && IsUnitWithinScreenSpace())
+                {
+                    _mouseScreenSelectionBehavior.UnitsOnScreenList.Add(this);
+                    IsOnScreen = true;
+                }
+                else if(IsOnScreen && !IsUnitWithinScreenSpace())
+                {
+                    _mouseScreenSelectionBehavior.UnitsOnScreenList.Remove(this);
+                    IsOnScreen = false;
+                }
             }
         }
     }

@@ -12,7 +12,5 @@ namespace Assets.Scripts
         public const string MainCamera = "MainCamera";
         public const string Player = "Player";
         public const string GameController = "GameController";
-        public const string CameraController = "CameraController";
-        public const string Ground = "Ground";
     }
 }
