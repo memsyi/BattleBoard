@@ -1,4 +1,5 @@
-﻿using System.Configuration;
+﻿using System;
+using System.Configuration;
 using UnityEngine;
 
 namespace Assets.Scripts
@@ -10,12 +11,16 @@ namespace Assets.Scripts
         private SpriteRenderer _spriteRenderer;
 
         [SerializeField]
-        private int _movingDistance = 10;
+        private int _movingDistance = 0;
 
         public int MovingDistance
         {
             get { return _movingDistance; }
-            set { _movingDistance = value; }
+            set
+            {
+                _movingDistance = value;
+                transform.localScale = new Vector3((float)Math.Sqrt(_movingDistance), 1, (float)Math.Sqrt(_movingDistance));
+            }
         }
 
         // Use this for initialization
