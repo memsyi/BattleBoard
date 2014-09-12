@@ -162,7 +162,7 @@ namespace Assets.Scripts
                 {
                     // Rotation
                     RotateRightOrLeft(-Input.GetAxis("Mouse X"));
-                    RotateUpOrDown(-Input.GetAxis("Mouse Y"));
+                    RotateUpOrDown(Input.GetAxis("Mouse Y"));
 
                     return;
                 }
