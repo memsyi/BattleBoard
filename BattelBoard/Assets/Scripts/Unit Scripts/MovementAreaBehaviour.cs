@@ -15,7 +15,7 @@ namespace Assets.Scripts
             set
             {
                 _movingDistance = value;
-                SpriteRenderer.transform.localScale = new Vector3(_movingDistance, _movingDistance, 1);
+                SpriteRenderer.transform.localScale = new Vector3(_movingDistance * 2, _movingDistance * 2, 1);
             }
         }
 
@@ -29,11 +29,12 @@ namespace Assets.Scripts
 
         private void Init()
         {
+            MovingDistance = _movingDistance;
         }
 
         private void HandleMovementAreaDisplay()
         {
-            SpriteRenderer.transform.localScale = new Vector3(MovingDistance, MovingDistance, 1);
+            //SpriteRenderer.transform.localScale = new Vector3(MovingDistance, MovingDistance, 1);
             SpriteRenderer.enabled = Unit.IsSelected;
         }
 
