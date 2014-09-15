@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-using System.Collections;
-
+﻿
 namespace Assets.Scripts
 {
     public class Tags
@@ -14,5 +12,6 @@ namespace Assets.Scripts
         public const string GameController = "GameController";
         public const string CameraController = "CameraController";
         public const string Ground = "Ground";
+        public const string MousePosition = "MousePosition";
     }
 }

@@ -1,17 +1,13 @@
-﻿using System;
-using System.Configuration;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Assets.Scripts
 {
     public class MovementAreaBehaviour : MonoBehaviour
     {
-
-        private SelectableUnitBehaviour _selectableUnitBehaviour;
-        private SpriteRenderer _spriteRenderer;
+        #region Variables
 
         [SerializeField]
-        private int _movingDistance = 0;
+        private int _movingDistance;
 
         public int MovingDistance
         {
@@ -19,23 +15,44 @@ namespace Assets.Scripts
             set
             {
                 _movingDistance = value;
-                transform.localScale = new Vector3((float)Math.Sqrt(_movingDistance), 1, (float)Math.Sqrt(_movingDistance));
+                SpriteRenderer.transform.localScale = new Vector3(_movingDistance, _movingDistance, 1);
             }
         }
+
+        public UnitBehaviour Unit { get { return GetComponentInParent<UnitBehaviour>(); } }
+
+        public SpriteRenderer SpriteRenderer { get { return GetComponentInChildren<SpriteRenderer>(); } }
+
+        #endregion
+
+        #region Methods
+
+        private void Init()
+        {
+        }
+
+        private void HandleMovementAreaDisplay()
+        {
+            SpriteRenderer.transform.localScale = new Vector3(MovingDistance, MovingDistance, 1);
+            SpriteRenderer.enabled = Unit.IsSelected;
+        }
+
+        #endregion
+
+        #region MonoBehaviour Implementation
 
         // Use this for initialization
         void Start()
         {
-            _selectableUnitBehaviour = gameObject.GetComponentInParent<SelectableUnitBehaviour>();
-            _spriteRenderer = GetComponentInChildren<SpriteRenderer>();
-
-            transform.localScale = new Vector3(MovingDistance, 1, MovingDistance);
+            Init();
         }
 
         // Update is called once per frame
         private void Update()
         {
-            _spriteRenderer.enabled = _selectableUnitBehaviour.IsSelected;
+            HandleMovementAreaDisplay();
         }
+
+        #endregion
     }
 }

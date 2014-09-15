@@ -1,49 +1,151 @@
-﻿using System;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
 
 namespace Assets.Scripts
 {
     public class MouseScreenSelectionBehavior : MonoBehaviour
     {
+        #region Variables
+
         [SerializeField]
-        GUISkin _mouseDragSkin = null;
+        private GUISkin _mouseDragSkin;
 
         [SerializeField]
         private float _minimalDraggingDistance;
 
-        public float MinimalDraggingDistance
-        {
-            get { return _minimalDraggingDistance; }
-        }
+        [SerializeField]
+        private bool _enableMassSelection;
 
-        private Rect _mouseSelectionArea;
+        public Rect MouseSelectionArea { get; private set; }
+
+        public GameControllerBehaviour GameController { get { return FindObjectOfType<GameControllerBehaviour>(); } }
+
+        public float MinimalDraggingDistance { get { return _minimalDraggingDistance; } }
+
         public Vector2 MouseSelectionStartPosition { get; private set; }
 
-        public List<SelectableUnitBehaviour> UnitsOnScreen { get; set; }
+        public UnitBehaviour DirectSelectedUnit { get; private set; }
 
-        public List<SelectableUnitBehaviour> CurrentlySelectedUnits
+        public List<UnitBehaviour> CurrentlySelectedUnits
         {
-            get
+            get { return GameController.UnitsOnScreen.Where(x => x.IsSelected).ToList(); }
+        }
+
+        #endregion
+
+        #region Methods
+
+        private void Init()
+        {
+        }
+
+        private void HandleMouseSelection()
+        {
+            if (Input.GetMouseButtonDown(1)) // Right MouseButton
             {
-                return UnitsOnScreen.Where(x => x.IsSelected).ToList();
+                CurrentlySelectedUnits.ForEach(x => x.IsSelected = false);
+            }
+            if (Input.GetMouseButtonDown(0)) // Left MouseButton
+            {
+                MouseEnter();
+            }
+            else if (IsMouseDragging())
+            {
+                if (_enableMassSelection)
+                {
+                    CalculateMouseSelectionArea();
+                }
+                HandleUnitSelection();
             }
         }
 
-        public SelectableUnitBehaviour DirectSelectedUnit { get; private set; }
-
-        bool _hasSelected;
-
-        void Start()
+        private void MouseEnter()
         {
-            Initialize();
+            if (_enableMassSelection)
+            {
+                MouseSelectionStartPosition = new Vector2(Input.mousePosition.x, Screen.height - Input.mousePosition.y);
+                MouseSelectionArea = new Rect(MouseSelectionStartPosition.x, MouseSelectionStartPosition.y, 0, 0);
+            }
+
+            HandleDirectUnitSelection();
         }
 
-        private void Initialize()
+        private void CalculateMouseSelectionArea()
         {
-            UnitsOnScreen = new List<SelectableUnitBehaviour>();
+            var currentX = Input.mousePosition.x;
+            var currentY = Screen.height - Input.mousePosition.y;
+
+            var newWidth = Mathf.Abs(currentX - MouseSelectionStartPosition.x);
+            var newHeight = Mathf.Abs(currentY - MouseSelectionStartPosition.y);
+
+            var newX = currentX < MouseSelectionStartPosition.x ? currentX : MouseSelectionStartPosition.x;
+            var newY = currentY < MouseSelectionStartPosition.y ? currentY : MouseSelectionStartPosition.y;
+
+            MouseSelectionArea = new Rect(newX, newY, newWidth, newHeight);
+        }
+
+        private void HandleUnitSelection()
+        {
+            foreach (var unit in GameController.UnitsOnScreen)
+            {
+                if (unit == DirectSelectedUnit || IsUnitWithinDraggingRectangle(unit))
+                {
+                    if (!unit.IsSelected)
+                    {
+                        unit.IsSelected = true;
+                    }
+                }
+                else
+                {
+                    if (unit.IsSelected)
+                    {
+                        unit.IsSelected = false;
+                    }
+                }
+            }
+        }
+
+        private void DrawSelectionArea()
+        {
+            if (IsMouseDragging())
+            {
+                GUI.Box(MouseSelectionArea, "", _mouseDragSkin.box);
+            }
+        }
+
+        private bool IsUnitWithinDraggingRectangle(UnitBehaviour unit)
+        {
+            return MouseSelectionArea.Contains(unit.ScreenPosition);
+        }
+
+        private void HandleDirectUnitSelection()
+        {
+            var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hitInfo;
+
+            if (Physics.Raycast(ray, out hitInfo))
+            {
+                DirectSelectedUnit = hitInfo.transform.GetComponent<UnitBehaviour>();
+            }
+        }
+
+        public bool IsMouseDragging()
+        {
+            var currentPosition = new Vector2(Input.mousePosition.x, Screen.height - Input.mousePosition.y);
+            var distanceToStartPosition = Vector2.Distance(currentPosition, MouseSelectionStartPosition);
+            return distanceToStartPosition >= MinimalDraggingDistance
+                && Input.GetMouseButton(0); // Left MouseButton
+        }
+
+        #endregion
+
+        #region MonoBehaviour Implementation
+
+        // Use this for initialization
+        void Start()
+        {
+            Init();
         }
 
         // Update is called once per frame
@@ -54,152 +156,9 @@ namespace Assets.Scripts
 
         void OnGUI()
         {
-            if (!IsDragging())
-            {
-                return;
-            }
-
-            GUI.Box(_mouseSelectionArea, "", _mouseDragSkin.box);
+            DrawSelectionArea();
         }
 
-
-
-        private void HandleMouseSelection()
-        {
-            if (Input.GetButtonDown("Fire2"))
-            {
-                CurrentlySelectedUnits.ForEach(x => x.IsSelected = false);
-            }
-            if (Input.GetButtonDown("Fire1"))
-            {
-                MouseEnter();
-            }
-            else if (IsDragging())
-            {
-                CalculateMouseDraggingRectangle();
-                CheckMouseDraggingSelection();
-            }
-            if (Input.GetButtonUp("Fire1"))
-            {
-                MouseExit();
-            }
-        }
-
-        private void MouseEnter()
-        {
-            MouseSelectionStartPosition = new Vector2(Input.mousePosition.x, Screen.height - Input.mousePosition.y);
-
-            _mouseSelectionArea = new Rect(MouseSelectionStartPosition.x, MouseSelectionStartPosition.y, 0, 0);
-
-            IsUnitHitByMouse();
-        }
-
-        private void CalculateMouseDraggingRectangle()
-        {
-            Vector2 currentMousePosition;
-            currentMousePosition.x = Input.mousePosition.x;
-            currentMousePosition.y = Screen.height - Input.mousePosition.y;
-
-            _mouseSelectionArea.width = Mathf.Abs(currentMousePosition.x - MouseSelectionStartPosition.x);
-
-            if (currentMousePosition.x < MouseSelectionStartPosition.x)
-            {
-                _mouseSelectionArea.x = currentMousePosition.x;
-            }
-            else
-            {
-                _mouseSelectionArea.x = MouseSelectionStartPosition.x;
-            }
-
-            _mouseSelectionArea.height = Mathf.Abs(currentMousePosition.y - MouseSelectionStartPosition.y);
-
-            if (currentMousePosition.y < MouseSelectionStartPosition.y)
-            {
-                _mouseSelectionArea.y = currentMousePosition.y;
-            }
-            else
-            {
-                _mouseSelectionArea.y = MouseSelectionStartPosition.y;
-            }
-        }
-
-        private void CheckMouseDraggingSelection()
-        {
-            var selection = false;
-
-            foreach (var unit in UnitsOnScreen)
-            {
-                if (IsUnitWithinDraggingRectangle(unit.ScreenPosition) || unit == DirectSelectedUnit)
-                {
-                    if (!unit.IsSelected)
-                    {
-                        unit.IsSelected = true;
-                    }
-                    selection = true;
-                }
-                else// if (!DirectSelectedUnit)
-                {
-                    if (unit.IsSelected)
-                    {
-                        unit.IsSelected = false;
-                    }
-                }
-            }
-
-            _hasSelected = selection;
-        }
-
-        private bool IsUnitWithinDraggingRectangle(Vector2 screenPosition)
-        {
-            return screenPosition.x >= _mouseSelectionArea.x && screenPosition.x < _mouseSelectionArea.x + _mouseSelectionArea.width
-                && screenPosition.y > Screen.height - _mouseSelectionArea.y - _mouseSelectionArea.height && screenPosition.y < Screen.height - _mouseSelectionArea.y;
-        }
-
-        private Void IsUnitHitByMouse()
-        {
-            var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            RaycastHit hitInfo;
-            var distance = 100f;
-
-            if (Physics.Raycast(ray, out hitInfo, distance))
-            {
-                DirectSelectedUnit = hitInfo.transform.GetComponent<SelectableUnitBehaviour>();
-
-                //if (DirectSelectedUnit)
-                //{
-                //    if (!DirectSelectedUnit.IsSelected)
-                //    {
-                //        DirectSelectedUnit.IsSelected = true;
-                //    }
-                //    else
-                //    {
-                //        DirectSelectedUnit.IsSelected = false;
-                //    }
-                //}
-            }
-        }
-
-        private void MouseExit()
-        {
-            if (!_hasSelected)
-            {
-                return;
-            }
-
-            StartCoroutine(StopDragging());
-        }
-
-        IEnumerator StopDragging()
-        {
-            yield return new WaitForEndOfFrame();
-
-        }
-
-        public bool IsDragging()
-        {
-            var currentPosition = new Vector2(Input.mousePosition.x, Screen.height - Input.mousePosition.y);
-            return Vector2.Distance(currentPosition, MouseSelectionStartPosition) >= MinimalDraggingDistance
-                && Input.GetButton("Fire1");
-        }
+        #endregion
     }
 }

@@ -8,104 +8,91 @@ namespace Assets.Scripts
         [SerializeField]
         private bool _panByMousewheel = true;
 
-        public bool PanByMousewheel
-        {
-            get { return _panByMousewheel; }
-            set { _panByMousewheel = value; }
-        }
-
         [SerializeField]
         private float
             _movementSpeed = 1f,
             _rotationSpeed = 1f,
             _zoomSpeed = 1f,
-
-            _maximumZoom = 3f, _minimumZoom = 20f,
+            _minimumZoom = 20f,
+            _maximumZoom = 3f,
             _zoomDownAngle = 20f,
             _heightMultiplier = 1.3f;
 
-        private float HeightMultiplier
+        [SerializeField]
+        private int _borderWidth = 5;
+
+        public const float GeneralMultiplier = 0.3f;
+
+        public bool PanByMousewheel
+        {
+            get { return _panByMousewheel; }
+            private set { _panByMousewheel = value; }
+        }
+
+        public float HeightMultiplier
         {
             get
             {
-                var _muliplier = transform.position.y * GeneralMultiplier * _heightMultiplier;
-
-                return _muliplier;
+                var muliplier = transform.position.y * GeneralMultiplier * _heightMultiplier;
+                return muliplier;
             }
-            set { _heightMultiplier = value; }
+            private set { _heightMultiplier = value; }
         }
 
-        private float ZoomDownAngle
+        public float ZoomDownAngle
         {
             get { return _zoomDownAngle; }
-            set { _zoomDownAngle = value; }
+            private set { _zoomDownAngle = value; }
         }
 
-        private float MinimumZoom
+        public float MinimumZoom
         {
             get { return _minimumZoom; }
-            set { _minimumZoom = value; }
+            private set { _minimumZoom = value; }
         }
 
-        private float MaximumZoom
+        public float MaximumZoom
         {
             get { return _maximumZoom; }
-            set { _maximumZoom = value; }
+            private set { _maximumZoom = value; }
         }
 
         public float ZoomSpeed
         {
             get { return _zoomSpeed; }
-            set { _zoomSpeed = value; }
+            private set { _zoomSpeed = value; }
         }
 
         public float RotationSpeed
         {
             get { return _rotationSpeed; }
-            set { _rotationSpeed = value; }
+            private set { _rotationSpeed = value; }
         }
 
         public float MovementSpeed
         {
             get { return _movementSpeed; }
-            set { _movementSpeed = value; }
+            private set { _movementSpeed = value; }
         }
 
-        [SerializeField]
-        private int _borderWidth = 5;
-
-        private int BorderWidth
+        public int BorderWidth
         {
             get { return _borderWidth; }
-            set { _borderWidth = value; }
+            private set { _borderWidth = value; }
         }
 
-        // Not serialized
-        private float GeneralMultiplier
-        {
-            get { return 0.3f; }
-        }
+        public Quaternion DefaultRotation { get; private set; }
 
-        private Quaternion StartRotation
-        {
-            get;
-            set;
-        } 
         #endregion
 
-        // Use this for initialization
-        private void Start()
+        #region Methods
+
+        private void Init()
         {
-            SetStartRotation();
+            DefaultRotation = transform.rotation;
         }
 
-        private void SetStartRotation()
-        {
-            StartRotation = transform.rotation;
-        }
-
-        // Update is called once per frame
-        private void FixedUpdate()
+        private void HandleUserInput()
         {
             HandleKeyboardInput();
             HandleMouseInput();
@@ -113,7 +100,7 @@ namespace Assets.Scripts
 
         private void HandleKeyboardInput()
         {
-            #region Movement
+            //Movement
             if (Input.GetButton("Vertical"))
             {
                 MoveForwardOrBackward(Input.GetAxis("Vertical") * GeneralMultiplier);
@@ -121,10 +108,9 @@ namespace Assets.Scripts
             if (Input.GetButton("Horizontal"))
             {
                 MoveRightOrLeft(Input.GetAxis("Horizontal") * GeneralMultiplier);
-            } 
-            #endregion
+            }
 
-            #region Rotation
+            // Rotation
             if (Input.GetKey(KeyCode.E))
             {
                 RotateRightOrLeft(1); // Right
@@ -133,9 +119,8 @@ namespace Assets.Scripts
             {
                 RotateRightOrLeft(-1); // Left
             }
-            #endregion
 
-            #region Zoom
+            // Zoom
             if (Input.GetKey(KeyCode.KeypadPlus))
             {
                 Zoom(1); // In
@@ -144,125 +129,102 @@ namespace Assets.Scripts
             {
                 Zoom(-1); // Out
             }
-            #endregion
 
-            // Reset rotation
-            if(Input.GetKey(KeyCode.Backspace) || Input.GetKey(KeyCode.Keypad0))
+            // Rotation reset
+            if (Input.GetKey(KeyCode.Backspace) || Input.GetKey(KeyCode.Keypad0))
             {
-                transform.rotation = StartRotation;
+                transform.rotation = DefaultRotation;
             }
         }
 
         private void HandleMouseInput()
         {
-            #region Mousewheel Drag
+            // MouseWheel
             if (Input.GetMouseButton(2)) // Mousewheel
             {
-                if(_panByMousewheel)
+                if (PanByMousewheel)
                 {
                     // Rotation
                     RotateRightOrLeft(-Input.GetAxis("Mouse X"));
                     RotateUpOrDown(Input.GetAxis("Mouse Y"));
-
-                    return;
                 }
-
-                // Movement
-                MoveForwardOrBackward(-Input.GetAxis("Mouse Y"));
-                MoveRightOrLeft(-Input.GetAxis("Mouse X"));
-
-                return;
+                else
+                {
+                    // Movement
+                    MoveForwardOrBackward(-Input.GetAxis("Mouse Y"));
+                    MoveRightOrLeft(-Input.GetAxis("Mouse X"));
+                }
             }
-            #endregion
 
+            // Zoom
             Zoom(Input.GetAxis("Mouse ScrollWheel"));
 
-            #region Mouse screenposition
-            if (_panByMousewheel)
+            // Border Crossing
+            if (PanByMousewheel)
             {
-                #region Mouse screenposition - Movement
                 if (Input.mousePosition.x < BorderWidth)
                 {
-                    MoveRightOrLeft(-GeneralMultiplier); // Left
-
-                    return;
-                }
-                if (Input.mousePosition.x > Screen.width - BorderWidth)
-                {
                     MoveRightOrLeft(GeneralMultiplier); // Right
-
-                    return;
                 }
-                if (Input.mousePosition.y < BorderWidth)
+                else if (Input.mousePosition.x > Screen.width - BorderWidth)
                 {
-                    MoveForwardOrBackward(-GeneralMultiplier); // Backward
-
-                    return;
+                    MoveRightOrLeft(-GeneralMultiplier); // Left
                 }
-                if (Input.mousePosition.y > Screen.height - BorderWidth)
+                else if (Input.mousePosition.y < BorderWidth)
                 {
                     MoveForwardOrBackward(GeneralMultiplier); // Forward
-
-                    return;
                 }
-                #endregion
-
-                return;
+                else if (Input.mousePosition.y > Screen.height - BorderWidth)
+                {
+                    MoveForwardOrBackward(-GeneralMultiplier); // Back
+                }
             }
-
-            #region Mouse screenposition - Rotation
-            if (Input.mousePosition.x < BorderWidth)
+            else
             {
-                RotateRightOrLeft(-1); // Left
-
-                return;
+                if (Input.mousePosition.x < BorderWidth)
+                {
+                    RotateRightOrLeft(-1); // Left
+                }
+                else if (Input.mousePosition.x > Screen.width - BorderWidth)
+                {
+                    RotateRightOrLeft(1); // Right
+                }
+                else if (Input.mousePosition.y < BorderWidth)
+                {
+                    RotateUpOrDown(-1); // Down
+                }
+                else if (Input.mousePosition.y > Screen.height - BorderWidth)
+                {
+                    RotateUpOrDown(1); // Up
+                }
             }
-            if (Input.mousePosition.x > Screen.width - BorderWidth)
-            {
-                RotateRightOrLeft(1); // Right
-
-                return;
-            }
-            if (Input.mousePosition.y < BorderWidth)
-            {
-                RotateUpOrDown(-1); // Down
-
-                return;
-            }
-            if (Input.mousePosition.y > Screen.height - BorderWidth)
-            {
-                RotateUpOrDown(1); // Up
-
-                return;
-            }
-            #endregion 
-            #endregion
         }
 
-        #region Movement
         /// <summary>
-        /// <para> positive value for forward, negativ value for backward </para>
+        /// <para> positive value for forward, negative value for backward </para>
         /// </summary>
         private void MoveForwardOrBackward(float movement)
         {
-            var _yPostion = transform.position.y;
+            /* Since we don't want the camera height to change when moving, we have to
+             * save the starting height and reset it after moving.
+             */
+            var startingHeight = transform.position.y;
 
             transform.position += transform.forward * MovementSpeed * GeneralMultiplier * HeightMultiplier * movement;
 
-            transform.position = new Vector3(transform.position.x, _yPostion, transform.position.z);
+            transform.position = new Vector3(transform.position.x, startingHeight, transform.position.z);
         }
+
         /// <summary>
-        /// <para> positive value for right, negativ value for left </para>
+        /// <para> positive value for right, negative value for left </para>
         /// </summary>
         private void MoveRightOrLeft(float movement)
         {
             transform.position += transform.right * MovementSpeed * GeneralMultiplier * HeightMultiplier * movement;
         }
-        #endregion
 
-        #region Rotation
         /// <summary>
-        /// <para> positive value for right, negativ value for left </para>
+        /// <para> positive value for right, negative value for left </para>
         /// </summary>
         private void RotateRightOrLeft(float rotation)
         {
@@ -271,28 +233,27 @@ namespace Assets.Scripts
                 transform.rotation.eulerAngles.y + RotationSpeed * rotation,
                 0);
         }
+
         /// <summary>
-        /// <para> positive value for up, negativ value for down </para>
+        /// <para> positive value for up, negative value for down </para>
         /// </summary>
         private void RotateUpOrDown(float rotation)
         {
-            float _rotationX;
-            if(rotation > 0)
+            float rotationX;
+            if (rotation > 0)
             {
-                _rotationX = transform.rotation.eulerAngles.x >= 5 ? transform.rotation.eulerAngles.x - RotationSpeed * rotation : 4.9f;
+                rotationX = transform.rotation.eulerAngles.x >= 5 ? transform.rotation.eulerAngles.x - RotationSpeed * rotation : 4.9f;
             }
             else
             {
-                _rotationX = transform.rotation.eulerAngles.x <= 85 ? transform.rotation.eulerAngles.x - RotationSpeed * rotation : 85.1f;
+                rotationX = transform.rotation.eulerAngles.x <= 85 ? transform.rotation.eulerAngles.x - RotationSpeed * rotation : 85.1f;
             }
 
-            transform.rotation = Quaternion.Euler(_rotationX, transform.rotation.eulerAngles.y, 0);
+            transform.rotation = Quaternion.Euler(rotationX, transform.rotation.eulerAngles.y, 0);
         }
-        #endregion
 
-        #region Zoom
         /// <summary>
-        /// <para> positive value for in, negativ value for out </para>
+        /// <para> positive value for in, negative value for out </para>
         /// </summary>
         private void Zoom(float zoom)
         {
@@ -316,6 +277,22 @@ namespace Assets.Scripts
                 transform.position = new Vector3(transform.position.x, MinimumZoom, transform.position.z);
             }
         }
+
+        #endregion
+
+        #region MonoBehaviour Implementation
+        // Use this for initialization
+        void Start()
+        {
+            Init();
+        }
+
+        // Update is called once per frame
+        void FixedUpdate()
+        {
+            HandleUserInput();
+        }
+
         #endregion
     }
 }

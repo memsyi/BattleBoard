@@ -1,54 +1,65 @@
-﻿using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 namespace Assets.Scripts
 {
     public class PathRendererBehavior : MonoBehaviour
     {
-        //private SelectableUnitBehaviour _selectableUnitBehaviour;
-        private MoveableUnitBehaviour _moveableUnitBehaviour;
-        private LineRenderer _lineRenderer;
+        #region Variables
 
-        //private bool IsSelected { get { return _selectableUnitBehaviour.IsSelected; } }
-        private float DistaceToTarget { get { return _moveableUnitBehaviour.GetDistanceToTarget(); } }
+        public UnitBehaviour Unit { get { return GetComponentInParent<UnitBehaviour>(); } }
+
+        public LineRenderer LineRenderer { get { return GetComponent<LineRenderer>(); } }
+
+        public float DistanceToTarget { get { return Unit.GetDistanceToTarget(); } }
+
+        #endregion
+
+        #region Methods
+
+        private void Init()
+        {
+        }
+
+        private void HandleLineRenderer()
+        {
+            if (DistanceToTarget < 1)
+            {
+                SetLineRenderToNull();
+                return;
+            }
+            SetLineRendererPositions(Unit.GetLineRendererPositions());
+        }
+
+        private void SetLineRendererPositions(IList<Vector3> pointsOnLine)
+        {
+            LineRenderer.SetVertexCount(pointsOnLine.Count);
+            for (var i = 0; i < pointsOnLine.Count; i++)
+            {
+                LineRenderer.SetPosition(i, pointsOnLine[i]);
+            }
+        }
+        private void SetLineRenderToNull()
+        {
+            LineRenderer.SetVertexCount(0);
+        }
+
+        #endregion
+
+        #region MonoBehaviour Implementation
 
         // Use this for initialization
         void Start()
         {
-            Initialize();
+            Init();
         }
 
         // Update is called once per frame
         void Update()
         {
-            if (DistaceToTarget < 1)
-            {
-                SetLineRenderToNull();
-                return;
-            }
-
-            SetLineRendererPositions(_moveableUnitBehaviour.GetLineRendererPositions());
+            HandleLineRenderer();
         }
 
-        private void Initialize()
-        {
-            _lineRenderer = gameObject.GetComponent<LineRenderer>();
-            //_selectableUnitBehaviour = gameObject.GetComponentInParent<SelectableUnitBehaviour>();
-            _moveableUnitBehaviour = gameObject.GetComponentInParent<MoveableUnitBehaviour>();
-        }
-
-        private void SetLineRendererPositions(IList<Vector3> pointsOnLine)
-        {
-            _lineRenderer.SetVertexCount(pointsOnLine.Count);
-            for (var i = 0; i < pointsOnLine.Count; i++)
-            {
-                _lineRenderer.SetPosition(i, pointsOnLine[i]);
-            }
-        }
-        private void SetLineRenderToNull()
-        {
-            _lineRenderer.SetVertexCount(0);
-        }
+        #endregion
     }
 }

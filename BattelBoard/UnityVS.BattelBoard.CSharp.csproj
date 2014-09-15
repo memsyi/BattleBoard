@@ -7,14 +7,16 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{5CB3E02E-494E-4A81-CC6B-1531F6B31737}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace></RootNamespace>
+    <RootNamespace>
+    </RootNamespace>
     <AssemblyName>Assembly-CSharp</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{E097FAD1-6243-4DAD-9C02-E9B9EFC3FFC1};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>Unity Subset v3.5</TargetFrameworkProfile>
-    <CompilerResponseFile></CompilerResponseFile>
+    <CompilerResponseFile>
+    </CompilerResponseFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -58,15 +60,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Scripts\Controller Scripts\CameraControllerBehavior.cs" />
-    <Compile Include="Assets\Scripts\GUI Scripts\ShowDistanceToTaget.cs" />
+    <Compile Include="Assets\Scripts\Controller Scripts\GameControllerBehaviour.cs" />
+    <Compile Include="Assets\Scripts\Input Scripts\MouseClickPositionBehavior.cs" />
     <Compile Include="Assets\Scripts\Input Scripts\MouseScreenSelectionBehavior.cs" />
-    <Compile Include="Assets\Scripts\Input Scripts\MouseWorldSelectionBehavior.cs" />
-    <Compile Include="Assets\Scripts\Input Scripts\ShowMouseClickPositionBehavior.cs" />
     <Compile Include="Assets\Scripts\Tags.cs" />
-    <Compile Include="Assets\Scripts\Unit Scripts\MoveableUnitBehaviour.cs" />
     <Compile Include="Assets\Scripts\Unit Scripts\MovementAreaBehaviour.cs" />
     <Compile Include="Assets\Scripts\Unit Scripts\PathRendererBehavior.cs" />
-    <Compile Include="Assets\Scripts\Unit Scripts\SelectableUnitBehaviour.cs" />
+    <Compile Include="Assets\Scripts\Unit Scripts\UnitBehaviour.cs" />
     <None Include="Assets\Standard Assets\Projectors\Guidelines.txt" />
     <None Include="Assets\Standard Assets\Projectors\Sources\Shaders\Projector Light.shader" />
     <None Include="Assets\Standard Assets\Projectors\Sources\Shaders\Projector Multiply.shader" />
