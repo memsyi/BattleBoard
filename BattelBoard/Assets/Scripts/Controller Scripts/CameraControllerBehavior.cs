@@ -6,7 +6,7 @@ namespace Assets.Scripts
     {
         #region Variables
         [SerializeField]
-        private bool _panByMousewheel = true;
+        private bool _panByMousewheel = true, _rotation;
 
         [SerializeField]
         private float
@@ -23,6 +23,11 @@ namespace Assets.Scripts
 
         public const float GeneralMultiplier = 0.3f;
 
+        public bool Rotation
+        {
+            get { return _rotation; }
+            set { _rotation = value; }
+        }
         public bool PanByMousewheel
         {
             get { return _panByMousewheel; }
@@ -179,7 +184,7 @@ namespace Assets.Scripts
                     MoveForwardOrBackward(-GeneralMultiplier); // Back
                 }
             }
-            else
+            else if (Rotation)
             {
                 if (Input.mousePosition.x < BorderWidth)
                 {
