@@ -23,12 +23,17 @@ namespace Assets.Scripts
 
         private void HandleLineRenderer()
         {
-            if (DistanceToTarget < 1)
+            if(Unit.IsSelected)
             {
-                SetLineRenderToNull();
+                // TODO show path live while selected
                 return;
             }
-            SetLineRendererPositions(Unit.GetLineRendererPositions());
+            if (DistanceToTarget > 0.5f)
+            {
+                SetLineRendererPositions(Unit.GetLineRendererPositions());
+                return;
+            }
+            SetLineRenderToNull();
         }
 
         private void SetLineRendererPositions(IList<Vector3> pointsOnLine)
