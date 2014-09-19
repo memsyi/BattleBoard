@@ -46,7 +46,7 @@ namespace Assets.Scripts
 
         private List<Vector3> MovementAreaOutline { get; set; }
 
-        private float SpriteScale { get { return 0.5f; } }
+        private float SpriteScale { get { return 0.4f; } }
 
         #endregion
 
@@ -165,29 +165,29 @@ namespace Assets.Scripts
 
         private void DrawAreaOutline()
         {
-            var meshFilter = gameObject.GetComponent<MeshFilter>();
+            //var meshFilter = gameObject.GetComponent<MeshFilter>();
 
-            meshFilter.mesh = CreateMesh();
+            //meshFilter.mesh = CreateMesh();
 
             //LineRenderer.SetVertexCount(MovementAreaOutline.Count);
             //for (var i = 0; i < MovementAreaOutline.Count; i++)
             //{
             //    LineRenderer.SetPosition(i, MovementAreaOutline[i]);
             //}
+            
+            MovementAreaSprite.transform.localScale = new Vector3(SpriteScale, SpriteScale, 1);
 
-            //MovementAreaSprite.transform.localScale = new Vector3(SpriteScale, SpriteScale, 1);
+            foreach (var spriteObject in MovementAreaSprites)
+            {
+                Destroy(spriteObject.gameObject);
+            }
 
-            //foreach (var spriteObject in MovementAreaSprites)
-            //{
-            //    Destroy(spriteObject.gameObject);
-            //}
+            MovementAreaSprites.Clear();
 
-            //MovementAreaSprites.Clear();
-
-            //foreach (var point in MovementAreaOutline)
-            //{
-            //    MovementAreaSprites.Add(Instantiate(MovementAreaSprite, point, Quaternion.Euler(new Vector3(90, 0, 0))) as Transform);
-            //}
+            foreach (var point in MovementAreaPoints)
+            {
+                MovementAreaSprites.Add(Instantiate(MovementAreaSprite, point, Quaternion.Euler(new Vector3(90, 0, 0))) as Transform);
+            }
         }
 
 
