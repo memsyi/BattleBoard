@@ -9,7 +9,9 @@ namespace Assets.Scripts
         #region Variables
 
         [SerializeField]
-        private int _movingDistance, _areaSubdevisions = 0;
+        private int _movingDistance = 2;
+        [SerializeField]
+        private int _areaSubdevisions = 0;
 
         [SerializeField]
         Transform _movementAreaSprite = null;
@@ -21,7 +23,9 @@ namespace Assets.Scripts
 
         public int AreaSubdevisions
         {
-            get { return _areaSubdevisions + 1; }
+            // Return how often one unit (step) will be devided
+            // No divisions mean unit divide by 1
+            get { return 2; }//_areaSubdevisions + 1; }
         }
 
         public int MovingDistance
@@ -46,7 +50,7 @@ namespace Assets.Scripts
 
         private List<Vector3> MovementAreaOutline { get; set; }
 
-        private float SpriteScale { get { return 0.4f; } }
+        private float SpriteScale { get { return 0.5f; } }
 
         #endregion
 
@@ -55,6 +59,12 @@ namespace Assets.Scripts
         private void Init()
         {
             MovingDistance = _movingDistance;
+            
+            DefineLists();
+        }
+
+        private void DefineLists()
+        {
             MovementAreaPoints = new List<Vector3>();
             MovementAreaOutline = new List<Vector3>();
             MovementAreaSprites = new List<Transform>();
@@ -65,11 +75,19 @@ namespace Assets.Scripts
             //SpriteRenderer.transform.localScale = new Vector3(MovingDistance, MovingDistance, 1);
             //SpriteRenderer.enabled = Unit.IsSelected;
 
-            CalculateAreaPoints();
+            if (Unit.IsSelected)
+            {
+                CalculateAreaPoints();
+                //CalculateAreaOutline();
+                DrawMovementArea();
+                return;
+            }
 
-            CalculateAreaOutline();
-            DrawAreaOutline();
-            //ShowAreaPoints();
+            if (MovementAreaSprites.Count > 0)
+            {
+                DestroyAllMovementSprites();
+                return;
+            }
         }
 
         private void CalculateAreaPoints()
@@ -80,9 +98,10 @@ namespace Assets.Scripts
             {
                 for (float y = -MovingDistance * AreaSubdevisions; y <= MovingDistance * AreaSubdevisions; y++)
                 {
-                    var target = new Vector3(transform.position.x + x / AreaSubdevisions, transform.position.y, transform.position.z + y / AreaSubdevisions);
+                    // Change positions to hexagon order
+                    var target = new Vector3(x / AreaSubdevisions, 0, y / AreaSubdevisions + (x % 2 == 0 ? 0 : SpriteScale / 2));
 
-                    if (GetPathIsPossible(target))
+                    if (IsPathPossible(target + transform.position))
                     {
                         MovementAreaPoints.Add(target);
                     }
@@ -105,14 +124,14 @@ namespace Assets.Scripts
                 }
             }
 
-            MovementAreaOutline.GroupBy(p => p.z);//.GroupBy(p => p.z);
+            //MovementAreaOutline.GroupBy(p => p.z);//.GroupBy(p => p.z);
 
             MovementAreaOutline.Add(transform.position);
         }
 
-        private bool GetPathIsPossible(Vector3 target)
+        private bool IsPathPossible(Vector3 target)
         {
-            if (Vector3.Distance(transform.position, target) > MovingDistance + 0.1f)
+            if (!IsBeelineShorterMovingDistance(target))
             {
                 return false;
             }
@@ -120,12 +139,30 @@ namespace Assets.Scripts
             NavMeshPath path = new NavMeshPath();
             Unit.NavMeshAgent.CalculatePath(target, path);
 
-            if (path.status != NavMeshPathStatus.PathComplete
-                || path.corners[path.corners.Length - 1] != target)
+            if(!IsPathComplet(target, path))
             {
                 return false;
             }
 
+            if(!IsPathShorterMovingDistance(path))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        private bool IsBeelineShorterMovingDistance(Vector3 target)
+        {
+            return Vector3.Distance(transform.position, target) < MovingDistance + 0.1f;
+        }
+        private bool IsPathComplet(Vector3 target, NavMeshPath path)
+        {
+            return path != null || path.status == NavMeshPathStatus.PathComplete
+                   || path.corners[path.corners.Length - 1] == target;
+        }
+        private bool IsPathShorterMovingDistance(NavMeshPath path)
+        {
             var pathLength = 0f;
 
             for (int i = 1; i < path.corners.Length; i++)
@@ -133,12 +170,7 @@ namespace Assets.Scripts
                 pathLength += Vector3.Distance(path.corners[i - 1], path.corners[i]);
             }
 
-            if (pathLength > MovingDistance + 0.1f)
-            {
-                return false;
-            }
-
-            return true;
+            return pathLength < MovingDistance + 0.1f;
         }
 
         private void ShowAreaPoints()
@@ -156,51 +188,104 @@ namespace Assets.Scripts
             {
                 MovementAreaSprites.Add(Instantiate(MovementAreaSprite, point, Quaternion.Euler(new Vector3(90, 0, 0))) as Transform);
             }
-
-            //foreach (var point in MovementAreaPoints)
-            //{
-            //    Debug.DrawLine(transform.position, point, Color.red); // TODO y position => ground high + transform.position.y
-            //}
         }
 
-        private void DrawAreaOutline()
+        private void DrawMovementArea()
         {
+            // MESH
             //var meshFilter = gameObject.GetComponent<MeshFilter>();
 
             //meshFilter.mesh = CreateMesh();
 
+            // OUTLINE BY LINERENDERER
             //LineRenderer.SetVertexCount(MovementAreaOutline.Count);
             //for (var i = 0; i < MovementAreaOutline.Count; i++)
             //{
             //    LineRenderer.SetPosition(i, MovementAreaOutline[i]);
             //}
-            
-            MovementAreaSprite.transform.localScale = new Vector3(SpriteScale, SpriteScale, 1);
 
+            // SPRITES
+            MovementAreaSprite.transform.localScale = new Vector3(SpriteScale + SpriteScale / 3, SpriteScale, 1); // x needs to be 30% longer then y
+
+            DestroyAllMovementSprites();
+
+            foreach (var point in MovementAreaPoints)
+            {
+                var instance = Instantiate(MovementAreaSprite, point + transform.position, Quaternion.Euler(new Vector3(90, 0, 0))) as Transform;
+                instance.parent = transform.GetChild(0);
+                MovementAreaSprites.Add(instance);
+            }
+
+            ChangeColorOfMouseSprite();
+        }
+
+        private void DestroyAllMovementSprites()
+        {
             foreach (var spriteObject in MovementAreaSprites)
             {
                 Destroy(spriteObject.gameObject);
             }
 
             MovementAreaSprites.Clear();
+        }
 
-            foreach (var point in MovementAreaPoints)
+        private void ChangeColorOfMouseSprite()
+        {
+            //    var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            //    RaycastHit hitInfo;
+
+            //    var isRaycastColliding = Physics.Raycast(ray, out hitInfo);
+            //    if (!isRaycastColliding)
+            //    {
+            //        return;
+            //    }
+            //    var colliderIsGround = hitInfo.transform.tag == Tags.MovementArea;
+            //    if (colliderIsGround)
+            //    {
+            //        hitInfo.transform.GetComponent<SpriteRenderer>().color = Color.red;
+            //    }
+            //}
+            if (Vector3.Distance(transform.position, GetMousePosition()) < MovingDistance + 0.1f) // Moving distance + a small extra distance
             {
-                MovementAreaSprites.Add(Instantiate(MovementAreaSprite, point, Quaternion.Euler(new Vector3(90, 0, 0))) as Transform);
+                var nearestSprites = MovementAreaSprites.FindAll(s => Vector3.Distance(s.position, GetMousePosition()) < 0.5f);
+
+                if (nearestSprites.Count > 0)
+                {
+                    var shortestDistance = 100f;
+                    Transform nearestSprite = null;
+
+                    foreach (var sprite in nearestSprites)
+                    {
+                        var distanceToMousePosition = Vector3.Distance(sprite.position, GetMousePosition());
+                        if (shortestDistance > distanceToMousePosition)
+                        {
+                            shortestDistance = distanceToMousePosition;
+                            nearestSprite = sprite;
+                        }
+                    }
+
+                    nearestSprite.GetComponent<SpriteRenderer>().color = Color.red;
+                }
             }
         }
 
+        private Vector3 GetMousePosition()
+        {
+            var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hitInfo;
+
+            var isRaycastColliding = GameObject.FindGameObjectWithTag(Tags.Ground).renderer.collider.Raycast(ray, out hitInfo, 100);
+            if (!isRaycastColliding)
+            {
+                return new Vector3(1000, 1000);
+            }
+            return hitInfo.point;
+        }
 
         private Mesh CreateMesh()
         {
             var mesh = new Mesh();
 
-            //Vertices
-            //var vertices = new Vector3[MovementAreaOutline.Count];
-            //for (int i = 0; i < MovementAreaOutline.Count; i++)
-            //{
-            //    vertices[i] = MovementAreaOutline[i] - transform.position;
-            //}
             //UVs
             var uvs = new Vector2[MovementAreaOutline.Count];
             for (int i = 0; i < uvs.Length; i++)
@@ -216,32 +301,12 @@ namespace Assets.Scripts
             }
             //Triangles
             int[] tris = new int[3 * (MovementAreaOutline.Count - 2)];    //3 verts per triangle * num triangles
-            var C1 = 0;
+            var C1 = MovementAreaOutline.Count - 1;
             var C2 = 0;
-            var C3 = 0;
+            var C3 = 1;
 
             if (MovementAreaOutline.Count > 2)
             {
-                //    C1 = 0;
-                //    C2 = 1;
-                //    C3 = 2;
-
-                //    for (int i = 0; i < tris.Length; i += 3)
-                //    {
-                //        tris[i] = C1;
-                //        tris[i + 1] = C2;
-                //        tris[i + 2] = C3;
-
-                //        C2++;
-                //        C3++;
-                //    }
-                //}
-                //else
-                //{
-                C1 = MovementAreaOutline.Count -1;
-                C2 = 1;
-                C3 = 2;
-
                 for (int i = 0; i < tris.Length; i += 3)
                 {
                     tris[i] = C1;
@@ -264,7 +329,7 @@ namespace Assets.Scripts
             mesh.Optimize();
 
             //Name the mesh
-            mesh.name = "MyMesh";
+            mesh.name = "MovementAreaMesh";
 
             //Return the mesh
             return mesh;

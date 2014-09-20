@@ -13,5 +13,6 @@ namespace Assets.Scripts
         public const string CameraController = "CameraController";
         public const string Ground = "Ground";
         public const string MousePosition = "MousePosition";
+        public const string MovementArea = "MovementArea";
     }
 }
