@@ -6,18 +6,24 @@ using UnityEngine;
 
 namespace Assets.Scripts
 {
-    public class Player : MonoBehaviour
+    public class Player
     {
+        public Player(GameControllerBehaviour gameController)
+        {
+            GameController = gameController;
+        }
+
         #region Variables
 
         public List<UnitBehaviour> Units { get; set; }
 
-        public GameControllerBehaviour GameController { get { return FindObjectOfType<GameControllerBehaviour>(); } }
+        public bool AreUnitsOutOfMoves { get { return Units.TrueForAll(x => x.IsOutOfMoves); } }
+
+        public GameControllerBehaviour GameController { get; private set; }
 
         #endregion
 
         #region Methods
-
 
 
         #endregion

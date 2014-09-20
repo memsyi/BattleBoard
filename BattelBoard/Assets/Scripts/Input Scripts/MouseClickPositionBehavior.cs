@@ -17,7 +17,6 @@ namespace Assets.Scripts
 
         private void HandleMouseClickPosition()
         {
-            print(GUIUtility.hotControl);
             if (Input.GetMouseButtonDown(0) && ! GameController.IsGuiSelected) // Left MouseButton
             {
                 var ray = Camera.main.ScreenPointToRay(Input.mousePosition);

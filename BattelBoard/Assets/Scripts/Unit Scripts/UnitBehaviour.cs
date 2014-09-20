@@ -36,12 +36,29 @@ namespace Assets.Scripts
             set { _isMoveable = value; }
         }
 
-        public int MovingDistance
+        public bool IsOutOfMoves
+        {
+            get { return MovingDistance == 0; }
+        }
+
+        public float MovingDistance
         {
             get
             {
                 var movementArea = transform.GetComponentInChildren<MovementAreaBehaviour>();
                 return movementArea.MovingDistance;
+            }
+            set
+            {
+                var movementArea = transform.GetComponentInChildren<MovementAreaBehaviour>();
+                if (value <= 0)
+                {
+                    movementArea.MovingDistance = 0;
+                }
+                else
+                {
+                    movementArea.MovingDistance = value;
+                }
             }
         }
 
@@ -82,6 +99,11 @@ namespace Assets.Scripts
         #endregion
 
         #region Methods
+
+        public void Reset()
+        {
+            MovingDistance = 5;
+        }
 
         private void Init()
         {
@@ -127,6 +149,7 @@ namespace Assets.Scripts
             if (IsSelected)
             {
                 SetMovementDestination(destination);
+                MovingDistance -= distance;
             }
         }
 

@@ -8,8 +8,10 @@ namespace Assets.Scripts
     {
         #region Variables
 
+        public const float DefaultMovingDistance = 5;
+
         [SerializeField]
-        private int _movingDistance = 2;
+        private float _movingDistance = 2;
         [SerializeField]
         private int _areaSubdevisions = 0;
 
@@ -25,10 +27,10 @@ namespace Assets.Scripts
         {
             // Return how often one unit (step) will be devided
             // No divisions mean unit divide by 1
-            get { return 2; }//_areaSubdevisions + 1; }
+            get { return 1; }//_areaSubdevisions + 1; }
         }
 
-        public int MovingDistance
+        public float MovingDistance
         {
             get { return _movingDistance; }
             set
@@ -99,7 +101,7 @@ namespace Assets.Scripts
                 for (float y = -MovingDistance * AreaSubdevisions; y <= MovingDistance * AreaSubdevisions; y++)
                 {
                     // Change positions to hexagon order
-                    var target = new Vector3(x / AreaSubdevisions, 0, y / AreaSubdevisions + (x % 2 == 0 ? 0 : SpriteScale / 2));
+                    var target = new Vector3(x / AreaSubdevisions, 0, y / AreaSubdevisions + (x % 2 == 0 ? 0 : SpriteScale));
 
                     if (IsPathPossible(target + transform.position))
                     {
@@ -205,7 +207,7 @@ namespace Assets.Scripts
             //}
 
             // SPRITES
-            MovementAreaSprite.transform.localScale = new Vector3(SpriteScale + SpriteScale / 3, SpriteScale, 1); // x needs to be 30% longer then y
+            MovementAreaSprite.transform.localScale = new Vector3(2*SpriteScale + 2*SpriteScale / 3, 2* SpriteScale, 1); // x needs to be 30% longer then y
 
             DestroyAllMovementSprites();
 
