@@ -24,14 +24,6 @@ namespace Assets.Scripts
 
         public const float GeneralMultiplier = 0.3f;
 
-        public Vector3 CameraPositionPlayer1 { get { return new Vector3(0, 10, -22); } }
-
-        public Vector3 CameraRotationPlayer1 { get { return new Vector3(35, 0, 0); } }
-
-        public Vector3 CameraPositionPlayer2 { get { return new Vector3(0, 10, 22); } }
-
-        public Vector3 CameraRotationPlayer2 { get { return new Vector3(35, 180, 0); } }
-
         public bool Rotation
         {
             get { return _rotation; }

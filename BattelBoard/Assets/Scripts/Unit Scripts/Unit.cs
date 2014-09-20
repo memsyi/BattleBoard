@@ -16,15 +16,13 @@ namespace Assets.Scripts
             set { _controllingPLayer = value; }
         }
 
-        private Color _defaultColor;
-
         public NavMeshAgent NavMeshAgent { get { return GetComponent<NavMeshAgent>(); } }
 
         public MovementArea MovementArea { get { return GetComponentInChildren<MovementArea>(); } }
 
         public bool IsOutOfMoves
         {
-            get { return MovingDistance == 0; }
+            get { return MovingDistance == 0 || !IsActive; }
         }
 
         public float MovingDistance
@@ -67,6 +65,8 @@ namespace Assets.Scripts
 
         public bool IsActive { get; private set; }
 
+        private bool _hasAlreadyMoved;
+
         private bool _isSelected;
 
         public bool IsSelected
@@ -76,6 +76,11 @@ namespace Assets.Scripts
             {
                 if (_isSelected == value)
                 {
+                    return;
+                }
+                if (value && _hasAlreadyMoved)
+                {
+                    SetActive(false);
                     return;
                 }
                 _isSelected = value;
@@ -96,13 +101,13 @@ namespace Assets.Scripts
         public void Reset()
         {
             MovingDistance = 5;
-            renderer.material.color = _defaultColor;
+            SetActive(true);
+            _hasAlreadyMoved = false;
         }
 
         private void Init()
         {
             MouseController.Instance.MousePositionChanged += OnMousePositionChanged;
-            _defaultColor = renderer.material.color;
         }
 
         public List<Vector3> GetLineRendererPositions()
@@ -145,6 +150,7 @@ namespace Assets.Scripts
             {
                 SetMovementDestination(destination);
                 MovingDistance -= distance;
+                _hasAlreadyMoved = true;
             }
         }
 
