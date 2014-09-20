@@ -71,7 +71,7 @@
     <Compile Include="Assets\Scripts\Singleton.cs" />
     <Compile Include="Assets\Scripts\Tags.cs" />
     <Compile Include="Assets\Scripts\Unit Scripts\MovementArea.cs" />
-    <Compile Include="Assets\Scripts\Unit Scripts\PathRendererBehavior.cs" />
+    <Compile Include="Assets\Scripts\Unit Scripts\PathRenderer.cs" />
     <Compile Include="Assets\Scripts\Unit Scripts\Unit.cs" />
     <None Include="Assets\Standard Assets\Projectors\Guidelines.txt" />
     <None Include="Assets\Standard Assets\Projectors\Sources\Shaders\Projector Light.shader" />
