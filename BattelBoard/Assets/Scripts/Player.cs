@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
 namespace Assets.Scripts
 {
@@ -45,16 +44,16 @@ namespace Assets.Scripts
 
         private void AdjustCameraSettings()
         {
-            var cameraController = Object.FindObjectOfType<CameraController>();
+            var cameraController = GameObject.FindObjectOfType<CameraController>();
             switch (PlayerId)
             {
                 case 1:
-                    PlayerCameraPosition = new Vector3(0, 10, -22);
-                    PlayerCameraRotation = new Vector3(35, 0, 0);
+                    cameraController.transform.position = new Vector3(50, 10, 0);
+                    cameraController.transform.eulerAngles = new Vector3(35, 0, 0);
                     break;
                 case 2:
-                    PlayerCameraPosition = new Vector3(0, 10, 22);
-                    PlayerCameraRotation = new Vector3(35, 180, 0);
+                    cameraController.transform.eulerAngles = new Vector3(35, 180, 0);
+                    cameraController.transform.position = new Vector3(50, 10, 100);
                     break;
             }
         }
