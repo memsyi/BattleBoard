@@ -88,6 +88,11 @@ namespace Assets.Scripts
             IsActive = state;
         }
 
+        public bool IsMoving
+        {
+            get { return NavMeshAgent.velocity.magnitude > 0; }
+        }
+
         public void Reset()
         {
             MovingDistance = 5;
