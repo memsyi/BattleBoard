@@ -29,11 +29,8 @@ namespace Assets.Scripts
 
         private void HandleMouseCollision()
         {
-            var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hitInfo;
-
-            var isRaycastColliding = Physics.Raycast(ray, out hitInfo);
-            if (!isRaycastColliding)
+            if(!IsMouseColliding(out hitInfo))
             {
                 return;
             }
@@ -54,7 +51,29 @@ namespace Assets.Scripts
                     SelectUnit(unit);
                 }
             }
+        }
 
+        private bool IsMouseColliding(out RaycastHit hitInfo)
+        {
+            var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+            var isRaycastColliding = Physics.Raycast(ray, out hitInfo);
+            if (!isRaycastColliding)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        private Vector3 GetMousePosition()
+        {
+            var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hitInfo;
+
+            var isRaycastColliding = GameObject.FindGameObjectWithTag(Tags.Ground).collider.Raycast(ray, out hitInfo, 100f);
+
+            return hitInfo.point;
         }
 
         private void SelectUnit(Unit unit)
@@ -72,10 +91,14 @@ namespace Assets.Scripts
         private void SetMousePosition(Vector3 newPosition)
         {
             transform.position = newPosition;
-            InvokeMousePositionChanged(new EventArgs());
+            InvokeMouseClickPositionChanged(new EventArgs());
+        }
+        public Vector3 CurrentMousePosition
+        {
+            get { return GetMousePosition(); }
         }
 
-        private void InvokeMousePositionChanged(EventArgs e)
+        private void InvokeMouseClickPositionChanged(EventArgs e)
         {
             if (MousePositionChanged != null)
                 MousePositionChanged(this, e);

@@ -9,7 +9,7 @@ namespace Assets.Scripts
     public class GameController : Singleton<GameController>
     {
         [SerializeField]
-        private int _playerCount;
+        private int _playerCount = 2;
 
         private int _currentPlayer;
 

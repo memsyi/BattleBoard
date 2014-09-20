@@ -5,7 +5,9 @@ namespace Assets.Scripts
     public class CameraController : MonoBehaviour
     {
         [SerializeField]
-        private bool _panByMousewheel = true, _rotation;
+        private bool 
+            _panByMousewheel = true,
+            _rotation;
 
         [SerializeField]
         private float
