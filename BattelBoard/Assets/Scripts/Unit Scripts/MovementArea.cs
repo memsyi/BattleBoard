@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
+using System.Threading;
 
 namespace Assets.Scripts
 {
@@ -41,7 +43,7 @@ namespace Assets.Scripts
 
         private List<Vector3> MovementAreaOutline { get; set; }
 
-        private float SpriteScale { get { return 0.5f; } }
+        private float SpriteScale { get { return 1f / AreaSubdevisions; } }
 
         private void Init()
         {
@@ -71,7 +73,10 @@ namespace Assets.Scripts
 
             if (MovementAreaSprites.Count > 0)
             {
-                DestroyAllMovementSprites();
+                //var thread = new Thread(new ThreadStart(DestroyAllMovementSprites));
+                //thread.Start();
+                StartCoroutine(DestroyAllMovementSprites());
+
                 return;
             }
         }
@@ -80,12 +85,12 @@ namespace Assets.Scripts
         {
             MovementAreaPositions.Clear();
 
-            for (float x = -MovingDistance * AreaSubdevisions; x <= MovingDistance * AreaSubdevisions; x++)
+            for (int x = (int)-MovingDistance * AreaSubdevisions; x <= MovingDistance * AreaSubdevisions; x++)
             {
-                for (float y = -MovingDistance * AreaSubdevisions; y <= MovingDistance * AreaSubdevisions; y++)
+                for (int y = (int)-MovingDistance * AreaSubdevisions; y <= MovingDistance * AreaSubdevisions; y++)
                 {
                     // Change positions to hexagon order
-                    var target = new Vector3(x / AreaSubdevisions, 0, y / AreaSubdevisions + (x % 2 == 0 ? 0 : SpriteScale / AreaSubdevisions));
+                    var target = new Vector3(x * SpriteScale, 0, y * SpriteScale + (x % 2 == 0 ? 0 : SpriteScale / 2));
 
                     if (IsPathPossible(target + transform.position))
                     {
@@ -164,8 +169,6 @@ namespace Assets.Scripts
         {
             MovementAreaSprite.transform.localScale = new Vector3(SpriteScale + SpriteScale / 3, SpriteScale, 1); // x needs to be 30% longer then y
 
-            DestroyAllMovementSprites();
-
             foreach (var position in MovementAreaPositions)
             {
                 var instance = Instantiate(MovementAreaSprite, position + transform.position, Quaternion.Euler(new Vector3(90, 0, 0))) as Transform;
@@ -176,18 +179,28 @@ namespace Assets.Scripts
             ChangeColorOfMouseSprite();
         }
 
-        private void DestroyAllMovementSprites()
+        private IEnumerator DestroyAllMovementSprites()
         {
+            //foreach(var spriteObject in MovementAreaSprites)
+            //{
+            //    if (spriteObject)
+            //    {
+            //        Destroy(spriteObject.gameObject);
+            //        yield return new WaitForEndOfFrame();
+            //    }
+            //}
             MovementAreaSprites.ForEach(spriteObject => Destroy(spriteObject.gameObject));
 
             MovementAreaSprites.Clear();
+
+            return null;
         }
 
         private void ChangeColorOfMouseSprite()
         {
-            if (Vector3.Distance(transform.position, MouseController.Instance.GetCurrentMousePosition()) < MovingDistance + 0.1f) // Moving distance + a small extra distance
+            if (Vector3.Distance(transform.position, MouseController.Instance.CurrentMousePosition) < MovingDistance + 0.1f) // Moving distance + a small extra distance
             {
-                var nearestSprites = MovementAreaSprites.FindAll(s => Vector3.Distance(s.position, MouseController.Instance.GetCurrentMousePosition()) < 0.5f);
+                var nearestSprites = MovementAreaSprites.FindAll(s => Vector3.Distance(s.position, MouseController.Instance.CurrentMousePosition) < SpriteScale);
 
                 var nearestSprite = GetNearestMovementSprite(nearestSprites);
 
@@ -205,7 +218,7 @@ namespace Assets.Scripts
 
             foreach (var sprite in spriteList)
             {
-                var distanceToMousePosition = Vector3.Distance(sprite.position, MouseController.Instance.GetCurrentMousePosition());
+                var distanceToMousePosition = Vector3.Distance(sprite.position, MouseController.Instance.CurrentMousePosition);
                 if (shortestDistance > distanceToMousePosition)
                 {
                     shortestDistance = distanceToMousePosition;

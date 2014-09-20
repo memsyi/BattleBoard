@@ -93,9 +93,9 @@ namespace Assets.Scripts
             transform.position = newPosition;
             InvokeMouseClickPositionChanged(new EventArgs());
         }
-        public Vector3 GetCurrentMousePosition()
+        public Vector3 CurrentMousePosition
         {
-            return GetMousePosition();
+            get { return GetMousePosition(); }
         }
 
         private void InvokeMouseClickPositionChanged(EventArgs e)
