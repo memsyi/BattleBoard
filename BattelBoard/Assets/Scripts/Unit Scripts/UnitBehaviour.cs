@@ -12,6 +12,15 @@ namespace Assets.Scripts
         [SerializeField]
         private bool _isMoveable;
 
+        [SerializeField]
+        private int _controllingPLayer;
+
+        public int ControllingPlayer
+        {
+            get { return _controllingPLayer; }
+            set { _controllingPLayer = value; }
+        }
+
         public Transform MousePositionTarget { get { return FindObjectOfType<MouseClickPositionBehavior>().transform; } }
 
         public MouseClickPositionBehavior MouseClickPositionBehavior

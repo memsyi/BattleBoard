@@ -9,13 +9,16 @@ namespace Assets.Scripts
 
         #region Variables
 
+        public GameControllerBehaviour GameController { get { return FindObjectOfType<GameControllerBehaviour>(); } }
+
         #endregion
 
         #region Methods
 
         private void HandleMouseClickPosition()
         {
-            if (Input.GetMouseButtonDown(0)) // Left MouseButton
+            print(GUIUtility.hotControl);
+            if (Input.GetMouseButtonDown(0) && ! GameController.IsGuiSelected) // Left MouseButton
             {
                 var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
                 RaycastHit hitInfo;
