@@ -3,14 +3,8 @@ using System.Collections;
 
 namespace Assets.Scripts
 {
-    public class UserInterfaceBehaviour : MonoBehaviour
+    public class GuiController : Singleton<GuiController>
     {
-
-        #region Variables
-        #endregion
-
-        #region Methods
-
         public void OnSkipButtonClick()
         {
             print(GUIUtility.hotControl);
@@ -18,14 +12,13 @@ namespace Assets.Scripts
 
         public void OnSkipButtonEnter()
         {
-            GameControllerBehaviour.Instance.IsGuiSelected = true;
+            GameController.Instance.IsGuiSelected = true;
         }
 
         public void OnSkipButtonExit()
         {
-            GameControllerBehaviour.Instance.IsGuiSelected = false;
+            GameController.Instance.IsGuiSelected = false;
         }
-        #endregion
 
         // Use this for initialization
         void Start()

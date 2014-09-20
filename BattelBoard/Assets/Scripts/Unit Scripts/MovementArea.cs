@@ -1,13 +1,10 @@
-﻿using UnityEngine;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 namespace Assets.Scripts
 {
-    public class MovementAreaBehaviour : MonoBehaviour
+    public class MovementArea : MonoBehaviour
     {
-        #region Variables
-
         public const float DefaultMovingDistance = 5;
 
         [SerializeField]
@@ -40,7 +37,7 @@ namespace Assets.Scripts
             }
         }
 
-        public UnitBehaviour Unit { get { return GetComponentInParent<UnitBehaviour>(); } }
+        public Unit Unit { get { return GetComponentInParent<Unit>(); } }
 
         public SpriteRenderer SpriteRenderer { get { return GetComponentInChildren<SpriteRenderer>(); } }
 
@@ -54,14 +51,10 @@ namespace Assets.Scripts
 
         private float SpriteScale { get { return 0.5f; } }
 
-        #endregion
-
-        #region Methods
-
         private void Init()
         {
             MovingDistance = _movingDistance;
-            
+
             DefineLists();
         }
 
@@ -141,12 +134,12 @@ namespace Assets.Scripts
             NavMeshPath path = new NavMeshPath();
             Unit.NavMeshAgent.CalculatePath(target, path);
 
-            if(!IsPathComplet(target, path))
+            if (!IsPathComplet(target, path))
             {
                 return false;
             }
 
-            if(!IsPathShorterMovingDistance(path))
+            if (!IsPathShorterMovingDistance(path))
             {
                 return false;
             }
@@ -207,7 +200,7 @@ namespace Assets.Scripts
             //}
 
             // SPRITES
-            MovementAreaSprite.transform.localScale = new Vector3(2*SpriteScale + 2*SpriteScale / 3, 2* SpriteScale, 1); // x needs to be 30% longer then y
+            MovementAreaSprite.transform.localScale = new Vector3(2 * SpriteScale + 2 * SpriteScale / 3, 2 * SpriteScale, 1); // x needs to be 30% longer then y
 
             DestroyAllMovementSprites();
 
@@ -337,10 +330,6 @@ namespace Assets.Scripts
             return mesh;
         }
 
-        #endregion
-
-        #region MonoBehaviour Implementation
-
         // Use this for initialization
         void Start()
         {
@@ -352,7 +341,5 @@ namespace Assets.Scripts
         {
             HandleMovementAreaDisplay();
         }
-
-        #endregion
     }
 }

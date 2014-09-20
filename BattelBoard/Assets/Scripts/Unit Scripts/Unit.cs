@@ -5,13 +5,8 @@ using UnityEngine;
 
 namespace Assets.Scripts
 {
-    public class UnitBehaviour : MonoBehaviour
+    public class Unit : MonoBehaviour
     {
-        #region Variables
-
-        [SerializeField]
-        private bool _isMoveable;
-
         [SerializeField]
         private int _controllingPLayer;
 
@@ -21,14 +16,11 @@ namespace Assets.Scripts
             set { _controllingPLayer = value; }
         }
 
+        private Color _defaultColor;
 
         public NavMeshAgent NavMeshAgent { get { return GetComponent<NavMeshAgent>(); } }
 
-        public bool IsMovable
-        {
-            get { return _isMoveable; }
-            set { _isMoveable = value; }
-        }
+        public MovementArea MovementArea { get { return GetComponentInChildren<MovementArea>(); } }
 
         public bool IsOutOfMoves
         {
@@ -39,19 +31,14 @@ namespace Assets.Scripts
         {
             get
             {
-                var movementArea = transform.GetComponentInChildren<MovementAreaBehaviour>();
-                return movementArea.MovingDistance;
+                return MovementArea.MovingDistance;
             }
             set
             {
-                var movementArea = transform.GetComponentInChildren<MovementAreaBehaviour>();
-                if (value <= 0)
+                MovementArea.MovingDistance = value <= 0 ? 0 : value;
+                if (IsOutOfMoves)
                 {
-                    movementArea.MovingDistance = 0;
-                }
-                else
-                {
-                    movementArea.MovingDistance = value;
+                    SetActive(false);
                 }
             }
         }
@@ -78,6 +65,8 @@ namespace Assets.Scripts
             }
         }
 
+        public bool IsActive { get; private set; }
+
         private bool _isSelected;
 
         public bool IsSelected
@@ -85,23 +74,30 @@ namespace Assets.Scripts
             get { return _isSelected; }
             set
             {
+                if (_isSelected == value)
+                {
+                    return;
+                }
                 _isSelected = value;
                 HandleColorChange();
             }
         }
 
-        #endregion
-
-        #region Methods
+        public void SetActive(bool state)
+        {
+            IsActive = state;
+        }
 
         public void Reset()
         {
             MovingDistance = 5;
+            renderer.material.color = _defaultColor;
         }
 
         private void Init()
         {
             MouseController.Instance.MousePositionChanged += OnMousePositionChanged;
+            _defaultColor = renderer.material.color;
         }
 
         public List<Vector3> GetLineRendererPositions()
@@ -140,7 +136,7 @@ namespace Assets.Scripts
                 heading = direction * MovingDistance;
                 destination = heading + transform.position;
             }
-            if (IsSelected)
+            if (IsSelected && IsActive)
             {
                 SetMovementDestination(destination);
                 MovingDistance -= distance;
@@ -159,10 +155,6 @@ namespace Assets.Scripts
             }
         }
 
-        #endregion
-
-        #region MonoBehaviour Implementation
-
         // Use this for initialization
         void Start()
         {
@@ -173,7 +165,5 @@ namespace Assets.Scripts
         void Update()
         {
         }
-
-        #endregion
     }
 }
