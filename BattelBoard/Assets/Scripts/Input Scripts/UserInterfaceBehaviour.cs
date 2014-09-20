@@ -7,9 +7,6 @@ namespace Assets.Scripts
     {
 
         #region Variables
-
-        public GameControllerBehaviour GameController { get { return FindObjectOfType<GameControllerBehaviour>(); } }
-
         #endregion
 
         #region Methods
@@ -21,12 +18,12 @@ namespace Assets.Scripts
 
         public void OnSkipButtonEnter()
         {
-            GameController.IsGuiSelected = true;
+            GameControllerBehaviour.Instance.IsGuiSelected = true;
         }
 
         public void OnSkipButtonExit()
         {
-            GameController.IsGuiSelected = false;
+            GameControllerBehaviour.Instance.IsGuiSelected = false;
         }
         #endregion
 

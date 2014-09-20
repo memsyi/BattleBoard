@@ -21,12 +21,6 @@ namespace Assets.Scripts
             set { _controllingPLayer = value; }
         }
 
-        public Transform MousePositionTarget { get { return FindObjectOfType<MouseClickPositionBehavior>().transform; } }
-
-        public MouseClickPositionBehavior MouseClickPositionBehavior
-        {
-            get { return FindObjectOfType<MouseClickPositionBehavior>(); }
-        }
 
         public NavMeshAgent NavMeshAgent { get { return GetComponent<NavMeshAgent>(); } }
 
@@ -107,7 +101,7 @@ namespace Assets.Scripts
 
         private void Init()
         {
-            MouseClickPositionBehavior.MousePositionChanged += OnMousePositionChanged;
+            MouseController.Instance.MousePositionChanged += OnMousePositionChanged;
         }
 
         public List<Vector3> GetLineRendererPositions()
@@ -136,7 +130,7 @@ namespace Assets.Scripts
 
         private void OnMousePositionChanged(object mouseClickPosition, EventArgs e)
         {
-            var destination = MousePositionTarget.position;
+            var destination = MouseController.Instance.transform.position;
             var heading = destination - transform.position;
             var distance = heading.magnitude;
             var direction = heading / distance;

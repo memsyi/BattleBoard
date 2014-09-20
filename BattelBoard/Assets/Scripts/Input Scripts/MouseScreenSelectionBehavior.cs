@@ -19,7 +19,6 @@ namespace Assets.Scripts
 
         public Rect MouseSelectionArea { get; private set; }
 
-        public GameControllerBehaviour GameController { get { return FindObjectOfType<GameControllerBehaviour>(); } }
 
         public float MinimalDraggingDistance { get { return _minimalDraggingDistance; } }
 
@@ -29,7 +28,7 @@ namespace Assets.Scripts
 
         public List<UnitBehaviour> CurrentlySelectedUnits
         {
-            get { return GameController.UnitsOnScreen.Where(x => x.IsSelected).ToList(); }
+            get { return GameControllerBehaviour.Instance.UnitsOnScreen.Where(x => x.IsSelected).ToList(); }
         }
 
         #endregion
@@ -87,7 +86,7 @@ namespace Assets.Scripts
 
         private void HandleUnitSelection()
         {
-            foreach (var unit in GameController.UnitsOnScreen)
+            foreach (var unit in GameControllerBehaviour.Instance.UnitsOnScreen)
             {
                 if (unit == DirectSelectedUnit || IsUnitWithinDraggingRectangle(unit))
                 {
