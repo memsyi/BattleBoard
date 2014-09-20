@@ -28,7 +28,7 @@ namespace Assets.Scripts
 
         public List<UnitBehaviour> CurrentlySelectedUnits
         {
-            get { return GameControllerBehaviour.Instance.UnitsOnScreen.Where(x => x.IsSelected).ToList(); }
+            get { return GameController.Instance.UnitsOnScreen.Where(x => x.IsSelected).ToList(); }
         }
 
         #endregion
@@ -82,11 +82,13 @@ namespace Assets.Scripts
             var newY = currentY < MouseSelectionStartPosition.y ? currentY : MouseSelectionStartPosition.y;
 
             MouseSelectionArea = new Rect(newX, newY, newWidth, newHeight);
+
+            
         }
 
         private void HandleUnitSelection()
         {
-            foreach (var unit in GameControllerBehaviour.Instance.UnitsOnScreen)
+            foreach (var unit in GameController.Instance.UnitsOnScreen)
             {
                 if (unit == DirectSelectedUnit || IsUnitWithinDraggingRectangle(unit))
                 {

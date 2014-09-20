@@ -18,12 +18,12 @@ namespace Assets.Scripts
 
         public void OnSkipButtonEnter()
         {
-            GameControllerBehaviour.Instance.IsGuiSelected = true;
+            GameController.Instance.IsGuiSelected = true;
         }
 
         public void OnSkipButtonExit()
         {
-            GameControllerBehaviour.Instance.IsGuiSelected = false;
+            GameController.Instance.IsGuiSelected = false;
         }
         #endregion
 
