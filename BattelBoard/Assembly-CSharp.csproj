@@ -48,16 +48,15 @@
   <ItemGroup>
      <Compile Include="Assets\Scripts\Controller Scripts\CameraController.cs" />
      <Compile Include="Assets\Scripts\Controller Scripts\GameController.cs" />
+     <Compile Include="Assets\Scripts\Controller Scripts\GuiController.cs" />
      <Compile Include="Assets\Scripts\Controller Scripts\MouseController.cs" />
-     <Compile Include="Assets\Scripts\Input Scripts\MouseScreenSelectionBehavior.cs" />
-     <Compile Include="Assets\Scripts\Input Scripts\UserInterfaceBehaviour.cs" />
      <Compile Include="Assets\Scripts\MonoBehaviourTransformExtension.cs" />
      <Compile Include="Assets\Scripts\Player.cs" />
      <Compile Include="Assets\Scripts\Singleton.cs" />
      <Compile Include="Assets\Scripts\Tags.cs" />
-     <Compile Include="Assets\Scripts\Unit Scripts\MovementAreaBehaviour.cs" />
+     <Compile Include="Assets\Scripts\Unit Scripts\MovementArea.cs" />
      <Compile Include="Assets\Scripts\Unit Scripts\PathRendererBehavior.cs" />
-     <Compile Include="Assets\Scripts\Unit Scripts\UnitBehaviour.cs" />
+     <Compile Include="Assets\Scripts\Unit Scripts\Unit.cs" />
      <None Include="Assets\Standard Assets\Projectors\Guidelines.txt" />
      <None Include="Assets\Standard Assets\Projectors\Sources\Shaders\Projector Multiply.shader" />
      <None Include="Assets\Standard Assets\Skyboxes\_skybox info.txt" />
