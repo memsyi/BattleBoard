@@ -7,17 +7,31 @@ namespace Assets.Scripts
     {
         public Unit Unit { get { return GetComponentInParent<Unit>(); } }
 
-        public LineRenderer LineRenderer { get { return GetComponent<LineRenderer>(); } }
+        public LineRenderer PathInsideMovementArea { get; private set; }
+        public LineRenderer PathOutOfMovementArea { get; private set; }
 
         public float DistanceToTarget { get { return Unit.GetDistanceToTarget(); } }
 
         private void Init()
         {
+            PathInsideMovementArea = gameObject.AddComponent<LineRenderer>();
+            PathInsideMovementArea.SetWidth(0.1f, 0.1f);
+            PathInsideMovementArea.material = (Material)Resources.Load("Black");
+
+            PathOutOfMovementArea = transform.GetChild(0).gameObject.AddComponent<LineRenderer>();
+            PathOutOfMovementArea.SetWidth(0.1f, 0.1f);
+            PathOutOfMovementArea.material = (Material)Resources.Load("Red");
         }
 
         private void HandleLineRenderer()
         {
-            if (Unit.IsSelected)
+            if (!Unit.IsSelected && !Unit.IsActive)
+            {
+                SetLineRenderToNull();
+                return;
+            }
+
+            if (!Unit.IsMoving)
             {
                 // TODO show path live while selected
                 return;
@@ -27,21 +41,20 @@ namespace Assets.Scripts
                 SetLineRendererPositions(Unit.GetLineRendererPositions());
                 return;
             }
-            SetLineRenderToNull();
         }
 
         private void SetLineRendererPositions(IList<Vector3> pointsOnLine)
         {
-            LineRenderer.SetVertexCount(pointsOnLine.Count);
+            PathInsideMovementArea.SetVertexCount(pointsOnLine.Count);
             for (var i = 0; i < pointsOnLine.Count; i++)
             {
-                LineRenderer.SetPosition(i, pointsOnLine[i]);
+                PathInsideMovementArea.SetPosition(i, pointsOnLine[i]);
             }
         }
 
         private void SetLineRenderToNull()
         {
-            LineRenderer.SetVertexCount(0);
+            PathInsideMovementArea.SetVertexCount(0);
         }
 
         // Use this for initialization

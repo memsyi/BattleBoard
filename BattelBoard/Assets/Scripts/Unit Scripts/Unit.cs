@@ -24,15 +24,12 @@ namespace Assets.Scripts
 
         public bool IsOutOfMoves
         {
-            get { return MovingDistance == 0; }
+            get { return MovingDistance == 0 && !IsMoving; }
         }
 
         public float MovingDistance
         {
-            get
-            {
-                return MovementArea.MovingDistance;
-            }
+            get { return MovementArea.MovingDistance; }
             set
             {
                 MovementArea.MovingDistance = value <= 0 ? 0 : value;
@@ -131,21 +128,35 @@ namespace Assets.Scripts
 
         private void OnMousePositionChanged(object mouseClickPosition, EventArgs e)
         {
-            var destination = MouseController.Instance.transform.position;
-            var heading = destination - transform.position;
-            var distance = heading.magnitude;
-            var direction = heading / distance;
+            if (IsSelected && IsActive && !IsMoving)
+            {
+                var pathLength = 0f;
+                SetMovementDestination(GetMovementDestination(out pathLength));
+                MovingDistance -= pathLength;
+            }
+        }
 
-            if (distance >= MovingDistance)
+        public Vector3 GetMovementDestination(out float pathLength)
+        {
+            pathLength = 0f;
+            var destination = MouseController.Instance.transform.position;
+
+            NavMeshPath path = new NavMeshPath();
+            NavMeshAgent.CalculatePath(destination, path);
+
+            for (int i = 1; i < path.corners.Length; i++)
             {
-                heading = direction * MovingDistance;
-                destination = heading + transform.position;
+                pathLength += Vector3.Distance(path.corners[i - 1], path.corners[i]);
+
+                if (pathLength > MovingDistance)
+                {
+                    destination = Vector3.MoveTowards(path.corners[i], path.corners[i - 1], pathLength - MovingDistance);
+                    pathLength = MovingDistance;
+                    break;
+                }
             }
-            if (IsSelected && IsActive)
-            {
-                SetMovementDestination(destination);
-                MovingDistance -= distance;
-            }
+
+            return destination;
         }
 
         private void HandleColorChange()
