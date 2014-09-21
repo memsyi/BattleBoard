@@ -45,11 +45,14 @@ namespace Assets.Scripts
 
         private float SpriteScale { get { return 1f / AreaSubdevisions; } }
 
+        private bool IsMovementAreaShowed { get; set; }
+
         private void Init()
         {
             MovingDistance = _movingDistance;
 
             DefineLists();
+            InstantianteMovementAreaSprites((int)(Mathf.PI * MovingDistance * MovingDistance * AreaSubdevisions * AreaSubdevisions));
         }
 
         private void DefineLists()
@@ -59,23 +62,38 @@ namespace Assets.Scripts
             MovementAreaSprites = new List<Transform>();
         }
 
+        private void InstantianteMovementAreaSprites(int count)
+        {
+            MovementAreaSprite.transform.localScale = new Vector3(SpriteScale + SpriteScale / 3, SpriteScale, 1); // x needs to be 30% longer then y
+
+            for (int i = 0; i < count; i++)
+            {
+                var instance = Instantiate(MovementAreaSprite, Vector3.zero, Quaternion.Euler(new Vector3(90, 0, 0))) as Transform;
+                instance.parent = transform.GetChild(0);
+                instance.gameObject.SetActive(false);
+                MovementAreaSprites.Add(instance);
+            }
+        }
+
         private void HandleMovementAreaDisplay()
         {
             if (Unit.IsSelected && !Unit.IsMoving)
             {
-                if (MovementAreaSprites.Count == 0)
+                if (!IsMovementAreaShowed)
                 {
+                    HideAllMovementSprites();
                     CalculateAreaPositions();
-                    DrawMovementArea();
+                    ShowMovementSprites();
+
+                    IsMovementAreaShowed = true;
                 }
                 return;
             }
 
-            if (MovementAreaSprites.Count > 0)
+            if (IsMovementAreaShowed)
             {
-                //var thread = new Thread(new ThreadStart(DestroyAllMovementSprites));
-                //thread.Start();
-                StartCoroutine(DestroyAllMovementSprites());
+                HideAllMovementSprites();
+                IsMovementAreaShowed = false;
 
                 return;
             }
@@ -85,9 +103,9 @@ namespace Assets.Scripts
         {
             MovementAreaPositions.Clear();
 
-            for (int x = (int)-MovingDistance * AreaSubdevisions; x <= MovingDistance * AreaSubdevisions; x++)
+            for (int x = (int)((-MovingDistance - 1) * AreaSubdevisions); x <= (MovingDistance + 1) * AreaSubdevisions; x++)
             {
-                for (int y = (int)-MovingDistance * AreaSubdevisions; y <= MovingDistance * AreaSubdevisions; y++)
+                for (int y = (int)((-MovingDistance - 1) * AreaSubdevisions); y <= (MovingDistance + 1) * AreaSubdevisions; y++)
                 {
                     // Change positions to hexagon order
                     var target = new Vector3(x * SpriteScale, 0, y * SpriteScale + (x % 2 == 0 ? 0 : SpriteScale / 2));
@@ -141,7 +159,7 @@ namespace Assets.Scripts
 
         private bool IsBeelineShorterMovingDistance(Vector3 target)
         {
-            return Vector3.Distance(transform.position, target) < MovingDistance + 0.1f;
+            return Vector3.Distance(transform.position, target) < MovingDistance;
         }
         private bool IsPathComplet(Vector3 target, NavMeshPath path)
         {
@@ -157,41 +175,37 @@ namespace Assets.Scripts
                 pathLength += Vector3.Distance(path.corners[i - 1], path.corners[i]);
             }
 
-            return pathLength < MovingDistance + 0.1f;
+            return pathLength < MovingDistance;
         }
 
-        private void InstantianteSprite(Vector3 position)
+        private void ShowMovementSprites()
         {
-            MovementAreaSprites.Add(Instantiate(MovementAreaSprite, position, Quaternion.Euler(new Vector3(90, 0, 0))) as Transform);
-        }
-
-        private void DrawMovementArea()
-        {
-            MovementAreaSprite.transform.localScale = new Vector3(SpriteScale + SpriteScale / 3, SpriteScale, 1); // x needs to be 30% longer then y
-
-            foreach (var position in MovementAreaPositions)
+            for (int i = 0; i < MovementAreaPositions.Count; i++)
             {
-                var instance = Instantiate(MovementAreaSprite, position + transform.position, Quaternion.Euler(new Vector3(90, 0, 0))) as Transform;
-                instance.parent = transform.GetChild(0);
-                MovementAreaSprites.Add(instance);
+                if (MovementAreaSprites.Count <= i)
+                {
+                    InstantianteMovementAreaSprites(1);
+                }
+
+                var sprite = MovementAreaSprites[i];
+                sprite.transform.position = MovementAreaPositions[i] + transform.position;
+                sprite.transform.rotation = Quaternion.Euler(new Vector3(90, 0, 0));
+                sprite.gameObject.SetActive(true);
             }
-
-            ChangeColorOfMouseSprite();
-        }
-
-        private IEnumerator DestroyAllMovementSprites()
-        {
-            //foreach(var spriteObject in MovementAreaSprites)
+            //if(MovementAreaPositions.Count < MovementAreaSprites.Count)
             //{
-            //    if (spriteObject)
+            //    for(int i = MovementAreaPositions.Count; i < MovementAreaSprites.Count; i++)
             //    {
-            //        Destroy(spriteObject.gameObject);
-            //        yield return new WaitForEndOfFrame();
+            //        MovementAreaSprites[i].gameObject.SetActive(false);
             //    }
             //}
-            MovementAreaSprites.ForEach(spriteObject => Destroy(spriteObject.gameObject));
 
-            MovementAreaSprites.Clear();
+            //ChangeColorOfMouseSprite();
+        }
+
+        private IEnumerator HideAllMovementSprites()
+        {
+            MovementAreaSprites.ForEach(spriteObject => spriteObject.gameObject.SetActive(false));
 
             return null;
         }
