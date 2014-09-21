@@ -16,17 +16,15 @@ namespace Assets.Scripts
             set { _controllingPLayer = value; }
         }
 
+        private Color _defaultColor;
+
         public NavMeshAgent NavMeshAgent { get { return GetComponent<NavMeshAgent>(); } }
 
         public MovementArea MovementArea { get { return GetComponentInChildren<MovementArea>(); } }
 
         public bool IsOutOfMoves
         {
-<<<<<<< HEAD
-            get { return MovingDistance == 0 || !IsActive; }
-=======
-            get { return MovingDistance == 0 && !IsMoving; }
->>>>>>> origin/MovementArea
+            get { return MovingDistance == 0; }
         }
 
         public float MovingDistance
@@ -69,8 +67,6 @@ namespace Assets.Scripts
 
         public bool IsActive { get; private set; }
 
-        private bool _hasAlreadyMoved;
-
         private bool _isSelected;
 
         public bool IsSelected
@@ -80,11 +76,6 @@ namespace Assets.Scripts
             {
                 if (_isSelected == value)
                 {
-                    return;
-                }
-                if (value && _hasAlreadyMoved)
-                {
-                    SetActive(false);
                     return;
                 }
                 _isSelected = value;
@@ -105,13 +96,13 @@ namespace Assets.Scripts
         public void Reset()
         {
             MovingDistance = 5;
-            SetActive(true);
-            _hasAlreadyMoved = false;
+            renderer.material.color = _defaultColor;
         }
 
         private void Init()
         {
             MouseController.Instance.MousePositionChanged += OnMousePositionChanged;
+            _defaultColor = renderer.material.color;
         }
 
         public List<Vector3> GetLineRendererPositions()
@@ -140,18 +131,10 @@ namespace Assets.Scripts
 
         private void OnMousePositionChanged(object mouseClickPosition, EventArgs e)
         {
-            if (IsSelected && IsActive && !IsMoving)
-            {
-                var pathLength = 0f;
-                SetMovementDestination(GetMovementDestination(out pathLength));
-                MovingDistance -= pathLength;
-            }
-        }
-
-        public Vector3 GetMovementDestination(out float pathLength)
-        {
-            pathLength = 0f;
             var destination = MouseController.Instance.transform.position;
+            var heading = destination - transform.position;
+            var distance = heading.magnitude;
+            var direction = heading / distance;
 
             if (distance >= MovingDistance)
             {
@@ -160,23 +143,9 @@ namespace Assets.Scripts
             }
             if (IsSelected && IsActive)
             {
-<<<<<<< HEAD
                 SetMovementDestination(destination);
                 MovingDistance -= distance;
-                _hasAlreadyMoved = true;
-=======
-                pathLength += Vector3.Distance(path.corners[i - 1], path.corners[i]);
-
-                if (pathLength > MovingDistance)
-                {
-                    destination = Vector3.MoveTowards(path.corners[i], path.corners[i - 1], pathLength - MovingDistance);
-                    pathLength = MovingDistance;
-                    break;
             }
->>>>>>> origin/MovementArea
-            }
-
-            return destination;
         }
 
         private void HandleColorChange()
