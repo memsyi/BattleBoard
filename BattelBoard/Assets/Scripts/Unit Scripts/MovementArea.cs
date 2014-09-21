@@ -52,7 +52,9 @@ namespace Assets.Scripts
             MovingDistance = _movingDistance;
 
             DefineLists();
-            InstantianteMovementAreaSprites((int)(Mathf.PI * MovingDistance * MovingDistance * AreaSubdevisions * AreaSubdevisions));
+            InstantianteMovementAreaSprites((int)(Mathf.PI * (int)MovingDistance * (int)MovingDistance) * AreaSubdevisions * AreaSubdevisions);
+
+            print(MovementAreaSprites.Count);
         }
 
         private void DefineLists()
@@ -159,7 +161,7 @@ namespace Assets.Scripts
 
         private bool IsBeelineShorterMovingDistance(Vector3 target)
         {
-            return Vector3.Distance(transform.position, target) < MovingDistance;
+            return Vector3.Distance(transform.position, target) < MovingDistance + 0.5f;
         }
         private bool IsPathComplet(Vector3 target, NavMeshPath path)
         {
@@ -175,7 +177,7 @@ namespace Assets.Scripts
                 pathLength += Vector3.Distance(path.corners[i - 1], path.corners[i]);
             }
 
-            return pathLength < MovingDistance;
+            return pathLength < MovingDistance + 0.5f;
         }
 
         private void ShowMovementSprites()
