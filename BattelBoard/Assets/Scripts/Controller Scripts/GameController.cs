@@ -31,7 +31,7 @@ namespace Assets.Scripts
 
         public Dictionary<int, Player> Players { get; set; }
 
-        public Text Text { get { return FindObjectOfType<Text>(); } }
+        public Text Text { get { return FindObjectsOfType<Text>().First(x => x.tag == Tags.Text); } }
 
         public void OnSkipButtonClick()
         {

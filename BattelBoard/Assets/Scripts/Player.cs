@@ -49,11 +49,11 @@ namespace Assets.Scripts
             switch (PlayerId)
             {
                 case 1:
-                    PlayerCameraPosition = new Vector3(25, 4, 0);
+                    PlayerCameraPosition = new Vector3(0, 10, -22);
                     PlayerCameraRotation = new Vector3(35, 0, 0);
                     break;
                 case 2:
-                    PlayerCameraPosition = new Vector3(25, 4, 50);
+                    PlayerCameraPosition = new Vector3(0, 10, 22);
                     PlayerCameraRotation = new Vector3(35, 180, 0);
                     break;
             }
