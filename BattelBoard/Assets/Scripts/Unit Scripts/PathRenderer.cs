@@ -21,40 +21,104 @@ namespace Assets.Scripts
             PathOutOfMovementArea = transform.GetChild(0).gameObject.AddComponent<LineRenderer>();
             PathOutOfMovementArea.SetWidth(0.1f, 0.1f);
             PathOutOfMovementArea.material = (Material)Resources.Load("Red");
+
+            SetLineRenderToNull();
+            DisableLineRenderer();
         }
 
         private void HandleLineRenderer()
         {
-            if (!Unit.IsSelected && !Unit.IsActive)
+            if (!Unit.IsSelected)
             {
-                SetLineRenderToNull();
+                if (PathInsideMovementArea.enabled == false)
+                {
+                    return;
+                }
+                if (!Unit.IsMoving)
+                {
+                    SetLineRenderToNull();
+                    DisableLineRenderer();
+                }
                 return;
             }
 
             if (!Unit.IsMoving)
             {
-                // TODO show path live while selected
+                PathInsideMovementArea.enabled = true;
+                PathOutOfMovementArea.enabled = false;
+
+                var pathLength = 0f;
+                var destination = MouseController.Instance.CurrentMousePosition;
+                NavMeshPath path = Unit.GetPathToDestination(destination);
+
+                var isPathOutOfMovementArea = Unit.IsPathOutOfMovementArea(path, out destination, out pathLength);
+
+                SetLineRendererPositions(PathInsideMovementArea, Unit.GetLineRendererPositions(Unit.GetPathToDestination(destination)));
+
+                if (!isPathOutOfMovementArea)
+                {
+                    return;
+                }
+
+                PathOutOfMovementArea.enabled = true;
+
+                var outOfAreaCorners = new List<Vector3>(path.corners);
+                outOfAreaCorners[0] = destination;
+                var checkPathLength = 0f;
+
+                for (int i = 1; i < path.corners.Length; i++)
+                {
+                    checkPathLength += Vector3.Distance(path.corners[i - 1], path.corners[i]);
+                    if (checkPathLength < pathLength)
+                    {
+                        outOfAreaCorners.Remove(path.corners[i]);
+                        //return;
+                    }
+                }
+                SetLineRendererPositions(PathOutOfMovementArea, outOfAreaCorners.ToArray());
+
                 return;
             }
             if (DistanceToTarget > 0.5f)
             {
-                SetLineRendererPositions(Unit.GetLineRendererPositions());
+                PathInsideMovementArea.enabled = true;
+
+                SetLineRendererPositions(PathInsideMovementArea, Unit.GetLineRendererPositions(Unit.NavMeshAgent.path));
+
                 return;
             }
         }
 
-        private void SetLineRendererPositions(IList<Vector3> pointsOnLine)
+        private void SetLineRendererPositions(LineRenderer lineRenderer, IList<Vector3> pointsOnLine)
         {
-            PathInsideMovementArea.SetVertexCount(pointsOnLine.Count);
+            if (!lineRenderer)
+            {
+                return;
+            }
+
+            lineRenderer.SetVertexCount(pointsOnLine.Count);
             for (var i = 0; i < pointsOnLine.Count; i++)
             {
-                PathInsideMovementArea.SetPosition(i, pointsOnLine[i]);
+                lineRenderer.SetPosition(i, pointsOnLine[i]);
             }
         }
 
         private void SetLineRenderToNull()
         {
             PathInsideMovementArea.SetVertexCount(0);
+            PathOutOfMovementArea.SetVertexCount(0);
+        }
+
+        private void DisableLineRenderer()
+        {
+            PathInsideMovementArea.enabled = false;
+            PathOutOfMovementArea.enabled = false;
+        }
+
+        private void EnableLineRenderer()
+        {
+            PathInsideMovementArea.enabled = true;
+            PathOutOfMovementArea.enabled = true;
         }
 
         // Use this for initialization
