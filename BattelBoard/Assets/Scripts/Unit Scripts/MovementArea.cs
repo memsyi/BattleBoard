@@ -212,9 +212,9 @@ namespace Assets.Scripts
 
         private void ChangeColorOfMouseSprite()
         {
-            if (Vector3.Distance(transform.position, MouseController.Instance.CurrentMousePosition) < MovingDistance + 0.1f) // Moving distance + a small extra distance
+            if (Vector3.Distance(transform.position, MouseController.Instance.GetMousePosition()) < MovingDistance + 0.1f) // Moving distance + a small extra distance
             {
-                var nearestSprites = MovementAreaSprites.FindAll(s => Vector3.Distance(s.position, MouseController.Instance.CurrentMousePosition) < SpriteScale);
+                var nearestSprites = MovementAreaSprites.FindAll(s => Vector3.Distance(s.position, MouseController.Instance.GetMousePosition()) < SpriteScale);
 
                 var nearestSprite = GetNearestMovementSprite(nearestSprites);
 
@@ -232,7 +232,7 @@ namespace Assets.Scripts
 
             foreach (var sprite in spriteList)
             {
-                var distanceToMousePosition = Vector3.Distance(sprite.position, MouseController.Instance.CurrentMousePosition);
+                var distanceToMousePosition = Vector3.Distance(sprite.position, MouseController.Instance.GetMousePosition());
                 if (shortestDistance > distanceToMousePosition)
                 {
                     shortestDistance = distanceToMousePosition;
