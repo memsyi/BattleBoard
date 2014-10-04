@@ -9,9 +9,9 @@ namespace Assets.Scripts
 
         public Unit SelectedUnit { get; private set; }
 
-        public Vector3 CurrentMousePosition { get { return GetMousePosition(); } }
+        public Vector3 CurrentMousePosition { get { return transform.position; } }
 
-        public ParticleSystem ParticleSystem { get{ return transform.GetOrAddComponent<ParticleSystem>(); } }
+        public ParticleSystem ParticleSystem { get { return GetComponent<ParticleSystem>(); } }
 
         private void Init()
         {
@@ -32,7 +32,7 @@ namespace Assets.Scripts
         private void HandleMouseCollision()
         {
             RaycastHit hitInfo;
-            if (!IsMouseColliding(out hitInfo))
+            if(!IsMouseColliding(out hitInfo))
             {
                 return;
             }
@@ -44,7 +44,7 @@ namespace Assets.Scripts
                 ParticleSystem.Play();
             }
 
-            var isRaycastCollidingWithUnit = hitInfo.transform.tag == Tags.Unit;
+            var isRaycastCollidingWithUnit = hitInfo.transform.tag == Tags.Unit; 
             if (isRaycastCollidingWithUnit)
             {
                 var unit = hitInfo.transform.GetComponent<Unit>();

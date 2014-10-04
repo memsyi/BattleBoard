@@ -7,8 +7,6 @@ Project("{D71E9A8F-88C8-D9AD-71E2-81C5B5BDB90F}") = "BattelBoard", "Assembly-CSh
 EndProject
 Project("{D71E9A8F-88C8-D9AD-71E2-81C5B5BDB90F}") = "BattelBoard", "Assembly-UnityScript-firstpass.unityproj", "{B176C59C-D010-B21A-9746-C44438636E3D}"
 EndProject
-Project("{D71E9A8F-88C8-D9AD-71E2-81C5B5BDB90F}") = "BattelBoard", "Assembly-UnityScript.unityproj", "{F778A6B9-660E-3729-A39B-6B5B98D57D25}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,15 +25,11 @@ Global
 		{B176C59C-D010-B21A-9746-C44438636E3D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B176C59C-D010-B21A-9746-C44438636E3D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B176C59C-D010-B21A-9746-C44438636E3D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F778A6B9-660E-3729-A39B-6B5B98D57D25}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F778A6B9-660E-3729-A39B-6B5B98D57D25}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F778A6B9-660E-3729-A39B-6B5B98D57D25}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F778A6B9-660E-3729-A39B-6B5B98D57D25}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
-																																																																																																																																												GlobalSection(MonoDevelopProperties) = preSolution
+																																																																																																																																					GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = Assembly-CSharp.csproj
 		Policies = $0
 		$0.TextStylePolicy = $1

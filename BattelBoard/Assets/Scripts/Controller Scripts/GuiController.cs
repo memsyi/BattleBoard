@@ -7,17 +7,17 @@ namespace Assets.Scripts
     {
         public void OnSkipButtonClick()
         {
-            //print(GUIUtility.hotControl);
+            print(GUIUtility.hotControl);
         }
 
         public void OnSkipButtonEnter()
         {
-            //GameController.Instance.IsGuiSelected = true;
+            GameController.Instance.IsGuiSelected = true;
         }
 
         public void OnSkipButtonExit()
         {
-            //GameController.Instance.IsGuiSelected = false;
+            GameController.Instance.IsGuiSelected = false;
         }
 
         // Use this for initialization
