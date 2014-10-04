@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -38,59 +37,49 @@ namespace Assets.Scripts
 
         public Dictionary<int, Player> Players { get; set; }
 
-        public Text Text { get { return FindObjectOfType<Text>(); } }
+        public Text Text { get { return FindObjectsOfType<Text>().First(x => x.tag == Tags.Text); } }
 
         public void OnSkipButtonClick()
         {
-            _currentPlayer = _currentPlayer % 2 + 1;
-            SetTurn(_currentPlayer);
+            SetTurn();
         }
+
         private void UpdateGame()
         {
             if (CurrentPlayer.AreUnitsOutOfMoves)
             {
-                _currentPlayer = _currentPlayer % 2 + 1;
-                SetTurn(_currentPlayer);
-                CurrentPlayer.Units.ForEach(x => x.Reset());
+                SetTurn();
             }
         }
 
-        private void SetTurn(int player)
+       private void SetTurn()
         {
-            if (_currentTurn / 2 == 3)
+            var nextId = CurrentPlayer.PlayerId % _playerCount + 1;
+
+            if (nextId == 1)
+            {
+                    _currentTurn++;
+            }
+
+            if (_currentTurn == 4)
             {
                 print("quit");
                 UnityEditor.EditorApplication.isPlaying = false;
             }
 
+            CurrentPlayer = Players[nextId];
+
             foreach (var p in Players)
             {
-                if (p.Key == player)
-                {
-                    CurrentPlayer = p.Value;
-                    CurrentPlayer.Units.ForEach(x => x.SetActive(true));
+                if (p.Key == CurrentPlayer.PlayerId)
+                { CurrentPlayer.SetActive(true);
+                    CameraController.SetCameraPositionAndRotation(CurrentPlayer.PlayerCameraPosition, CurrentPlayer.PlayerCameraRotation);
                 }
                 else
                 {
-                    p.Value.Units.ForEach(x =>
-                    {
-                        x.SetActive(false);
-                        x.IsSelected = false;
-                    });
-                    
+                    p.Value.SetActive(false);
                 }
-            }
-            Text.text = "Active turn: Player " + player;
-            _currentTurn++;
-
-            if (player == 1)
-            {
-                CameraController.SetCameraPositionAndRotation(CameraController.CameraPositionPlayer1, CameraController.CameraRotationPlayer1);
-            }
-            else
-            {
-                CameraController.SetCameraPositionAndRotation(CameraController.CameraPositionPlayer2, CameraController.CameraRotationPlayer2);
-            }
+            } Text.text = "Round: " + _currentTurn + "\nActive turn: Player " + CurrentPlayer.PlayerId;
         }
 
         // Use this for initialization
@@ -99,7 +88,7 @@ namespace Assets.Scripts
             Players = new Dictionary<int, Player>();
             for (var i = 1; i <= PlayerCount; i++)
             {
-                var player = new Player();
+                var player = new Player(i);
                 Players.Add(i, player);
             }
 
@@ -111,7 +100,7 @@ namespace Assets.Scripts
 
             _currentPlayer = 1;
 
-            SetTurn(_currentPlayer);
+            SetTurn();
         }
 
         // Update is called once per frame
