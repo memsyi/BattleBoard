@@ -16,15 +16,13 @@ namespace Assets.Scripts
             set { _controllingPLayer = value; }
         }
 
-        private Color _defaultColor;
-
         public NavMeshAgent NavMeshAgent { get { return GetComponent<NavMeshAgent>(); } }
 
         public MovementArea MovementArea { get { return GetComponentInChildren<MovementArea>(); } }
 
         public bool IsOutOfMoves
         {
-            get { return MovingDistance == 0 && !IsMoving; }
+            get { return MovingDistance == 0 && !IsMoving || !IsActive; }
         }
 
         public float MovingDistance
@@ -64,6 +62,8 @@ namespace Assets.Scripts
 
         public bool IsActive { get; private set; }
 
+        private bool _hasAlreadyMoved;
+
         private bool _isSelected;
 
         public bool IsSelected
@@ -75,6 +75,12 @@ namespace Assets.Scripts
                 {
                     return;
                 }
+                if (_hasAlreadyMoved)
+                {
+                    SetActive(false);
+                    MovingDistance = 0;
+                }
+                
                 _isSelected = value;
                 HandleColorChange();
             }
@@ -93,13 +99,13 @@ namespace Assets.Scripts
         public void Reset()
         {
             MovingDistance = 5;
-            renderer.material.color = _defaultColor;
+            IsActive = true;
+            _hasAlreadyMoved = false;
         }
 
         private void Init()
         {
             MouseController.Instance.MousePositionChanged += OnMousePositionChanged;
-            _defaultColor = renderer.material.color;
         }
 
         public List<Vector3> GetLineRendererPositions()
@@ -130,9 +136,10 @@ namespace Assets.Scripts
         {
             if (IsSelected && IsActive && !IsMoving)
             {
-                var pathLength = 0f;
+                float pathLength;
                 SetMovementDestination(GetMovementDestination(out pathLength));
                 MovingDistance -= pathLength;
+                _hasAlreadyMoved = true;
             }
         }
 
@@ -141,7 +148,7 @@ namespace Assets.Scripts
             pathLength = 0f;
             var destination = MouseController.Instance.transform.position;
 
-            NavMeshPath path = new NavMeshPath();
+            var path = new NavMeshPath();
             NavMeshAgent.CalculatePath(destination, path);
 
             for (int i = 1; i < path.corners.Length; i++)
