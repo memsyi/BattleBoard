@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Assets.Scripts
 {
@@ -22,31 +23,29 @@ namespace Assets.Scripts
         public Player(int playerId)
         {
             PlayerId = playerId;
-
-
             Units = GameController.Instance.UnitsOnBattleField.Where(x => x.ControllingPlayer == PlayerId).ToList();
-
             AdjustCameraSettings();
         }
 
-        public void SetActive()
+        public void SetActive(bool active)
         {
-            Debug.Log(PlayerId + " setting active");
-            Units.ForEach(x => x.Reset());
-        }
-
-        public void SetInactive()
-        {
-            Debug.Log(PlayerId + " setting inactive");
-            Units.ForEach(x =>
+            if (active)
             {
-                x.SetActive(false);
-                x.IsSelected = false;
-            });
+                Units.ForEach(x => x.Reset());
+            }
+            else
+            {
+                Units.ForEach(x =>
+                {
+                    x.SetActive(false);
+                    x.IsSelected = false;
+                });
+            }
         }
 
         private void AdjustCameraSettings()
         {
+            var cameraController = Object.FindObjectOfType<CameraController>();
             switch (PlayerId)
             {
                 case 1:

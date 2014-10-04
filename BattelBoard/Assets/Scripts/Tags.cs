@@ -15,5 +15,6 @@ namespace Assets.Scripts
         public const string MousePosition = "MousePosition";
         public const string MovementArea = "MovementArea";
         public const string Unit = "Unit";
+        public const string Text = "Text";
     }
 }

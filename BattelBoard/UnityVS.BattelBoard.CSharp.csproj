@@ -57,6 +57,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\External\FT_CaveWorm\Script\PlayAnimation.cs" />
+    <Compile Include="Assets\External\FT_CaveWorm\Script\SubstanceGUI.cs" />
     <Compile Include="Assets\Scripts\Controller Scripts\CameraController.cs" />
     <Compile Include="Assets\Scripts\Controller Scripts\GameController.cs" />
     <Compile Include="Assets\Scripts\Controller Scripts\GuiController.cs" />

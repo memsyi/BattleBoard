@@ -68,7 +68,7 @@ namespace Assets.Scripts
             return true;
         }
 
-        private Vector3 GetMousePosition()
+        public Vector3 GetMousePosition()
         {
             var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hitInfo;

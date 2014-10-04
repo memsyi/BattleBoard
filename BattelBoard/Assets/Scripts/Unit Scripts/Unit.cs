@@ -24,7 +24,7 @@ namespace Assets.Scripts
 
         public bool IsOutOfMoves
         {
-            get { return MovingDistance == 0; }
+            get { return MovingDistance == 0 && !IsMoving; }
         }
 
         public float MovingDistance
@@ -102,9 +102,9 @@ namespace Assets.Scripts
             _defaultColor = renderer.material.color;
         }
 
-        public List<Vector3> GetLineRendererPositions(NavMeshPath path)
+        public List<Vector3> GetLineRendererPositions()
         {
-            var corners = path.corners.ToList();
+            var corners = NavMeshAgent.path.corners.ToList();
             return corners;
         }
 
@@ -141,33 +141,8 @@ namespace Assets.Scripts
             pathLength = 0f;
             var destination = MouseController.Instance.transform.position;
 
-            var path = GetPathToDestination(destination);
-
-            //for (int i = 1; i < path.corners.Length; i++)
-            //{
-            //    pathLength += Vector3.Distance(path.corners[i - 1], path.corners[i]);
-
-            //    if (pathLength > MovingDistance)
-            //    {
-            //        destination = Vector3.MoveTowards(path.corners[i], path.corners[i - 1], pathLength - MovingDistance);
-            //        pathLength = MovingDistance;
-            //        break;
-            //    }
-            //}
-            IsPathOutOfMovementArea(path, out destination, out pathLength);
-
-            return destination;
-        }
-
-        public bool IsPathOutOfMovementArea(NavMeshPath path, out Vector3 destination, out float pathLength)
-        {
-            pathLength = 0f;
-            if (path.status != NavMeshPathStatus.PathComplete)
-            {
-                destination = transform.position;
-                return false;
-            }
-            destination = path.corners[path.corners.Length - 1];
+            NavMeshPath path = new NavMeshPath();
+            NavMeshAgent.CalculatePath(destination, path);
 
             for (int i = 1; i < path.corners.Length; i++)
             {
@@ -177,19 +152,11 @@ namespace Assets.Scripts
                 {
                     destination = Vector3.MoveTowards(path.corners[i], path.corners[i - 1], pathLength - MovingDistance);
                     pathLength = MovingDistance;
-                    return true;
+                    break;
                 }
             }
 
-            return false;
-        }
-
-        public NavMeshPath GetPathToDestination(Vector3 destination)
-        {
-            NavMeshPath path = new NavMeshPath();
-            NavMeshAgent.CalculatePath(destination, path);
-
-            return path;
+            return destination;
         }
 
         private void HandleColorChange()
