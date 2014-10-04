@@ -10,8 +10,6 @@ namespace Assets.Scripts
         [SerializeField]
         private int _playerCount = 2;
 
-        private int _currentPlayer;
-
         private int _currentTurn = 0;
         public int PlayerCount
         {
@@ -98,7 +96,7 @@ namespace Assets.Scripts
                 player.Value.Units = playerUnits;
             }
 
-            _currentPlayer = 1;
+            CurrentPlayer = Players[2];
 
             SetTurn();
         }
