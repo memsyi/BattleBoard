@@ -11,6 +11,10 @@ namespace Assets.Scripts
         private int _playerCount = 2;
 
         private int _currentTurn = 0;
+
+        private Text _winText;
+
+        private Text _loseText;
         public int PlayerCount
         {
             get { return _playerCount; }
@@ -37,10 +41,75 @@ namespace Assets.Scripts
 
         public Text Text { get { return FindObjectsOfType<Text>().First(x => x.tag == Tags.Text); } }
 
+        public bool IsCurrentPlayerWinner { get; private set; }
+
+        public bool IsGameOver { get; private set; }
+
         public void OnSkipButtonClick()
         {
-            SetTurn();
+            if (!IsGameOver)
+            {
+                SetTurn();
+            }
         }
+
+        public void OnWinButtonClick()
+        {
+            SetGameOverCameraPosition();
+            IsCurrentPlayerWinner = true;
+            IsGameOver = true;
+        }
+
+        public void OnLoseButtonClick()
+        {
+            SetGameOverCameraPosition();
+            IsCurrentPlayerWinner = false;
+            IsGameOver = true;
+        }
+
+        private void SetGameOverCameraPosition()
+        {
+            var playerUnit = CurrentPlayer.Units.First();
+            var cam = CameraController.GetComponentInChildren<Camera>();
+            cam.transform.position = playerUnit.transform.position + Vector3.up * 2 + Vector3.back * 5;
+        }
+
+        private void HandleGameOver()
+        {
+            if (!IsGameOver)
+            {
+                return;
+            }
+
+            if (IsCurrentPlayerWinner)
+            {
+                _winText.enabled = true;
+                _loseText.enabled = false;
+
+                ShowWinningScreen();
+            }
+            else
+            {
+                _winText.enabled = false;
+                _loseText.enabled = true;
+
+                ShowLosingScreen();
+            }
+        }
+
+
+        private void ShowWinningScreen()
+        {
+            var playerUnit = CurrentPlayer.Units.First();
+            CameraController.GetComponentInChildren<Camera>().transform.RotateAround(playerUnit.transform.position, Vector3.up, 0.5f);
+        }
+
+        private void ShowLosingScreen()
+        {
+            var playerUnit = CurrentPlayer.Units.First();
+            CameraController.GetComponentInChildren<Camera>().transform.RotateAround(playerUnit.transform.position, Vector3.up, -0.1f);
+        }
+
 
         private void UpdateGame()
         {
@@ -50,13 +119,13 @@ namespace Assets.Scripts
             }
         }
 
-       private void SetTurn()
+        private void SetTurn()
         {
             var nextId = CurrentPlayer.PlayerId % _playerCount + 1;
 
             if (nextId == 1)
             {
-                    _currentTurn++;
+                _currentTurn++;
             }
 
             if (_currentTurn == 4)
@@ -70,7 +139,8 @@ namespace Assets.Scripts
             foreach (var p in Players)
             {
                 if (p.Key == CurrentPlayer.PlayerId)
-                { CurrentPlayer.SetActive(true);
+                {
+                    CurrentPlayer.SetActive(true);
                     CameraController.SetCameraPositionAndRotation(CurrentPlayer.PlayerCameraPosition, CurrentPlayer.PlayerCameraRotation);
                 }
                 else
@@ -83,6 +153,12 @@ namespace Assets.Scripts
         // Use this for initialization
         void Start()
         {
+            _winText = GameObject.Find("WinText").GetComponent<Text>();
+            _winText.enabled = false;
+
+            _loseText = GameObject.Find("LoseText").GetComponent<Text>();
+            _loseText.enabled = false;
+
             Players = new Dictionary<int, Player>();
             for (var i = 1; i <= PlayerCount; i++)
             {
@@ -105,6 +181,11 @@ namespace Assets.Scripts
         void Update()
         {
             UpdateGame();
+        }
+
+        void FixedUpdate()
+        {
+            HandleGameOver();
         }
     }
 }
