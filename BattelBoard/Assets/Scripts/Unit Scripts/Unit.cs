@@ -28,10 +28,7 @@ namespace Assets.Scripts
 
         public float MovingDistance
         {
-            get
-            {
-                return MovementArea.MovingDistance;
-            }
+            get { return MovementArea.MovingDistance; }
             set
             {
                 MovementArea.MovingDistance = value <= 0 ? 0 : value;
@@ -112,9 +109,9 @@ namespace Assets.Scripts
             MouseController.Instance.MousePositionChanged += OnMousePositionChanged;
         }
 
-        public List<Vector3> GetLineRendererPositions()
+        public List<Vector3> GetLineRendererPositions(NavMeshPath path)
         {
-            var corners = NavMeshAgent.path.corners.ToList();
+            var corners = path.corners.ToList();
             return corners;
         }
 
@@ -140,10 +137,9 @@ namespace Assets.Scripts
         {
             if (IsSelected && IsActive && !IsMoving)
             {
-                float pathLength;
+                var pathLength = 0f;
                 SetMovementDestination(GetMovementDestination(out pathLength));
                 MovingDistance -= pathLength;
-                _hasAlreadyMoved = true;
             }
         }
 
@@ -152,8 +148,33 @@ namespace Assets.Scripts
             pathLength = 0f;
             var destination = MouseController.Instance.transform.position;
 
-            NavMeshPath path = new NavMeshPath();
-            NavMeshAgent.CalculatePath(destination, path);
+            var path = GetPathToDestination(destination);
+
+            //for (int i = 1; i < path.corners.Length; i++)
+            //{
+            //    pathLength += Vector3.Distance(path.corners[i - 1], path.corners[i]);
+
+            //    if (pathLength > MovingDistance)
+            //    {
+            //        destination = Vector3.MoveTowards(path.corners[i], path.corners[i - 1], pathLength - MovingDistance);
+            //        pathLength = MovingDistance;
+            //        break;
+            //    }
+            //}
+            IsPathOutOfMovementArea(path, out destination, out pathLength);
+
+            return destination;
+        }
+
+        public bool IsPathOutOfMovementArea(NavMeshPath path, out Vector3 destination, out float pathLength)
+        {
+            pathLength = 0f;
+            if (path.status != NavMeshPathStatus.PathComplete)
+            {
+                destination = transform.position;
+                return false;
+            }
+            destination = path.corners[path.corners.Length - 1];
 
             for (int i = 1; i < path.corners.Length; i++)
             {
@@ -163,11 +184,19 @@ namespace Assets.Scripts
                 {
                     destination = Vector3.MoveTowards(path.corners[i], path.corners[i - 1], pathLength - MovingDistance);
                     pathLength = MovingDistance;
-                    break;
+                    return true;
                 }
             }
 
-            return destination;
+            return false;
+        }
+
+        public NavMeshPath GetPathToDestination(Vector3 destination)
+        {
+            NavMeshPath path = new NavMeshPath();
+            NavMeshAgent.CalculatePath(destination, path);
+
+            return path;
         }
 
         private void HandleColorChange()
