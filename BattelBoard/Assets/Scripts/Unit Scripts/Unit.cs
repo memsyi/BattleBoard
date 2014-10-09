@@ -151,22 +151,22 @@ namespace Assets.Scripts
         {
             pathLength = 0f;
             var destination = MouseController.Instance.transform.position;
-            var heading = destination - transform.position;
-            var distance = heading.magnitude;
-            var direction = heading / distance;
-            var path = new NavMeshPath();
+
+            NavMeshPath path = new NavMeshPath();
             NavMeshAgent.CalculatePath(destination, path);
 
             for (int i = 1; i < path.corners.Length; i++)
             {
-                heading = direction * MovingDistance;
-                destination = heading + transform.position;
+                pathLength += Vector3.Distance(path.corners[i - 1], path.corners[i]);
+
+                if (pathLength > MovingDistance)
+                {
+                    destination = Vector3.MoveTowards(path.corners[i], path.corners[i - 1], pathLength - MovingDistance);
+                    pathLength = MovingDistance;
+                    break;
+                }
             }
-            if (IsSelected && IsActive)
-            {
-                SetMovementDestination(destination);
-                MovingDistance -= distance;
-            }
+
             return destination;
         }
 

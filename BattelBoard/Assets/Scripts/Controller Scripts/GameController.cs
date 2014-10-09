@@ -153,11 +153,11 @@ namespace Assets.Scripts
         // Use this for initialization
         void Start()
         {
-            _winText = GameObject.Find("WinText").GetComponent<Text>();
-            _winText.enabled = false;
+            //_winText = GameObject.Find("WinText").GetComponent<Text>();
+            //_winText.enabled = false;
 
-            _loseText = GameObject.Find("LoseText").GetComponent<Text>();
-            _loseText.enabled = false;
+            //_loseText = GameObject.Find("LoseText").GetComponent<Text>();
+            //_loseText.enabled = false;
 
             Players = new Dictionary<int, Player>();
             for (var i = 1; i <= PlayerCount; i++)
