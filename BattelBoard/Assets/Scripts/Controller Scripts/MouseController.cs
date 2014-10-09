@@ -9,7 +9,7 @@ namespace Assets.Scripts
 
         public Unit SelectedUnit { get; private set; }
 
-        public Vector3 CurrentMousePosition { get { return transform.position; } }
+        public Vector3 CurrentMousePosition { get { return GetMousePosition(); } }
 
         public ParticleSystem ParticleSystem { get { return GetComponent<ParticleSystem>(); } }
 

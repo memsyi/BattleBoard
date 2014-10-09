@@ -10,6 +10,15 @@ namespace Assets.Scripts
         [SerializeField]
         private int _playerCount = 2;
 
+        [SerializeField]
+        private bool _showMovementAreaOfUnits = false;
+
+        public bool ShowMovementAreaOfUnits
+        {
+            get { return _showMovementAreaOfUnits; }
+            set { _showMovementAreaOfUnits = value; }
+        }
+
         private int _currentTurn = 0;
 
         private Text _winText;
@@ -153,11 +162,11 @@ namespace Assets.Scripts
         // Use this for initialization
         void Start()
         {
-            _winText = GameObject.Find("WinText").GetComponent<Text>();
-            _winText.enabled = false;
+            //_winText = GameObject.Find("WinText").GetComponent<Text>();
+            //_winText.enabled = false;
 
-            _loseText = GameObject.Find("LoseText").GetComponent<Text>();
-            _loseText.enabled = false;
+            //_loseText = GameObject.Find("LoseText").GetComponent<Text>();
+            //_loseText.enabled = false;
 
             Players = new Dictionary<int, Player>();
             for (var i = 1; i <= PlayerCount; i++)

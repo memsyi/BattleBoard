@@ -252,7 +252,10 @@ namespace Assets.Scripts
         // Update is called once per frame
         private void Update()
         {
-            HandleMovementAreaDisplay();
+            if (GameController.Instance.ShowMovementAreaOfUnits)
+            {
+                HandleMovementAreaDisplay();
+            }
         }
     }
 }
