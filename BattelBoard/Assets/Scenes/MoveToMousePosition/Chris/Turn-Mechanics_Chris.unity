@@ -275,6 +275,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _playerCount: 2
+  _showMovementAreaOfUnits: 0
 --- !u!4 &55219695
 Transform:
   m_ObjectHideFlags: 0

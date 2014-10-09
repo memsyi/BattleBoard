@@ -10,6 +10,15 @@ namespace Assets.Scripts
         [SerializeField]
         private int _playerCount = 2;
 
+        [SerializeField]
+        private bool _showMovementAreaOfUnits = false;
+
+        public bool ShowMovementAreaOfUnits
+        {
+            get { return _showMovementAreaOfUnits; }
+            set { _showMovementAreaOfUnits = value; }
+        }
+
         private int _currentTurn = 0;
 
         private Text _winText;
