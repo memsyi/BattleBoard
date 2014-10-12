@@ -8,12 +8,93 @@ namespace Assets.Scripts
     public class Unit : MonoBehaviour
     {
         [SerializeField]
-        private int _controllingPLayer;
+        private int _controllingPlayer;
+
+        [SerializeField]
+        private string _name;
+
+        [SerializeField]
+        private float _health;
+
+        [SerializeField]
+        private float _defense;
+
+        [SerializeField]
+        private float _armor;
+
+        [SerializeField]
+        private int _movingPoints;
+
+        [SerializeField]
+        private int _actionPoints;
+
+        [SerializeField]
+        private List<Utility> _weapons;
+
+        [SerializeField]
+        private List<Utility> _abilities;
+
+        [SerializeField]
+        private bool _isHero;
+
+        public string Name
+        {
+            get { return _name; }
+            private set { _name = value; }
+        }
+
+        public float Health
+        {
+            get { return _health; }
+            private set { _health = value; }
+        }
+
+        public float Defense
+        {
+            get { return _defense; }
+            private set { _defense = value; }
+        }
+
+        public float Armor
+        {
+            get { return _armor; }
+            private set { _armor = value; }
+        }
+
+        public int MovingPoints
+        {
+            get { return _movingPoints; }
+            private set { _movingPoints = value; }
+        }
+
+        public int ActionPoints
+        {
+            get { return _actionPoints; }
+            private set { _actionPoints = value; }
+        }
+
+        public List<Utility> Weapons
+        {
+            get { return _weapons; }
+            private set { _weapons = value; }
+        }
+
+        public List<Utility> Abilities
+        {
+            get { return _abilities; }
+            private set { _abilities = value; }
+        }
+
+        public bool IsHero
+        {
+            get { return _isHero; }
+            private set { _isHero = value; }
+        }
 
         public int ControllingPlayer
         {
-            get { return _controllingPLayer; }
-            set { _controllingPLayer = value; }
+            get { return _controllingPlayer; }
+            private set { _controllingPlayer = value; }
         }
 
         public NavMeshAgent NavMeshAgent { get { return GetComponent<NavMeshAgent>(); } }
@@ -23,7 +104,7 @@ namespace Assets.Scripts
         public bool IsOutOfMoves
         {
 
-            get { return MovingDistance == 0 && !IsMoving || !IsActive; }
+            get { return MovingDistance.Equals(0) && !IsMoving || !IsActive; }
         }
 
         public float MovingDistance
@@ -31,7 +112,7 @@ namespace Assets.Scripts
             get { return MovementArea.MovingDistance; }
             set
             {
-                MovementArea.MovingDistance = value <= 0 ? 0 : value;
+                MovementArea.MovingDistance = value <= 0.5 ? 0 : value;
                 if (IsOutOfMoves)
                 {
                     SetActive(false);
@@ -43,7 +124,10 @@ namespace Assets.Scripts
         {
             get
             {
-                // Since the y-Axis on WorldToScreenPoint is flipped, we have to substract the value from the actual screen height
+                /* 
+                 * Since the y-Axis on WorldToScreenPoint is flipped, 
+                 * we have to substract the value from the actual screen height
+                 */
                 var worldToScreenPoint = Camera.main.WorldToScreenPoint(transform.position);
                 worldToScreenPoint.y = Screen.height - worldToScreenPoint.y;
                 return worldToScreenPoint;
@@ -81,7 +165,7 @@ namespace Assets.Scripts
                     SetActive(false);
                     MovingDistance = 0;
                 }
-                
+
                 _isSelected = value;
                 HandleColorChange();
             }
@@ -94,7 +178,7 @@ namespace Assets.Scripts
 
         public bool IsMoving
         {
-            get { return NavMeshAgent.velocity.magnitude > 0; }
+            get { return NavMeshAgent.hasPath || NavMeshAgent.pathPending; }
         }
 
         public void Reset()
@@ -137,7 +221,7 @@ namespace Assets.Scripts
         {
             if (IsSelected && IsActive && !IsMoving)
             {
-                var pathLength = 0f;
+                float pathLength;
                 SetMovementDestination(GetMovementDestination(out pathLength));
                 MovingDistance -= pathLength;
             }
@@ -145,22 +229,9 @@ namespace Assets.Scripts
 
         public Vector3 GetMovementDestination(out float pathLength)
         {
-            pathLength = 0f;
             var destination = MouseController.Instance.transform.position;
 
             var path = GetPathToDestination(destination);
-
-            //for (int i = 1; i < path.corners.Length; i++)
-            //{
-            //    pathLength += Vector3.Distance(path.corners[i - 1], path.corners[i]);
-
-            //    if (pathLength > MovingDistance)
-            //    {
-            //        destination = Vector3.MoveTowards(path.corners[i], path.corners[i - 1], pathLength - MovingDistance);
-            //        pathLength = MovingDistance;
-            //        break;
-            //    }
-            //}
             IsPathOutOfMovementArea(path, out destination, out pathLength);
 
             return destination;
@@ -176,7 +247,7 @@ namespace Assets.Scripts
             }
             destination = path.corners[path.corners.Length - 1];
 
-            for (int i = 1; i < path.corners.Length; i++)
+            for (var i = 1; i < path.corners.Length; i++)
             {
                 pathLength += Vector3.Distance(path.corners[i - 1], path.corners[i]);
 
@@ -193,7 +264,7 @@ namespace Assets.Scripts
 
         public NavMeshPath GetPathToDestination(Vector3 destination)
         {
-            NavMeshPath path = new NavMeshPath();
+            var path = new NavMeshPath();
             NavMeshAgent.CalculatePath(destination, path);
 
             return path;
@@ -212,14 +283,15 @@ namespace Assets.Scripts
         }
 
         // Use this for initialization
-        void Start()
+        public virtual void Start()
         {
             Init();
         }
 
         // Update is called once per frame
-        void Update()
+        public virtual void Update()
         {
+
         }
     }
 }
