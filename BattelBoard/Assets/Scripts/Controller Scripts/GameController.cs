@@ -8,6 +8,9 @@ namespace Assets.Scripts
     public class GameController : Singleton<GameController>
     {
         [SerializeField]
+        private int _maxTurns;
+
+        [SerializeField]
         private int _playerCount = 2;
 
         [SerializeField]
@@ -64,6 +67,10 @@ namespace Assets.Scripts
 
         public void OnWinButtonClick()
         {
+            if (IsGameOver)
+            {
+                return;
+            }
             SetGameOverCameraPosition();
             IsCurrentPlayerWinner = true;
             IsGameOver = true;
@@ -71,6 +78,10 @@ namespace Assets.Scripts
 
         public void OnLoseButtonClick()
         {
+            if (IsGameOver)
+            {
+                return;
+            }
             SetGameOverCameraPosition();
             IsCurrentPlayerWinner = false;
             IsGameOver = true;
@@ -80,7 +91,8 @@ namespace Assets.Scripts
         {
             var playerUnit = CurrentPlayer.Units.First();
             var cam = CameraController.GetComponentInChildren<Camera>();
-            cam.transform.position = playerUnit.transform.position + Vector3.up * 2 + Vector3.back * 5;
+            var rotationMultiplier = CurrentPlayer.PlayerId == 2 ? -1 : 1;
+            cam.transform.position = playerUnit.transform.position + Vector3.up * 2 + Vector3.back * 5 * rotationMultiplier;
         }
 
         private void HandleGameOver()
@@ -137,10 +149,11 @@ namespace Assets.Scripts
                 _currentTurn++;
             }
 
-            if (_currentTurn == 4)
+            if (_currentTurn == _maxTurns + 1)
             {
                 print("quit");
-                UnityEditor.EditorApplication.isPlaying = false;
+                //UnityEditor.EditorApplication.isPlaying = false;
+                Application.Quit();
             }
 
             CurrentPlayer = Players[nextId];
@@ -162,11 +175,11 @@ namespace Assets.Scripts
         // Use this for initialization
         void Start()
         {
-            //_winText = GameObject.Find("WinText").GetComponent<Text>();
-            //_winText.enabled = false;
+            _winText = GameObject.Find("WinText").GetComponent<Text>();
+            _winText.enabled = false;
 
-            //_loseText = GameObject.Find("LoseText").GetComponent<Text>();
-            //_loseText.enabled = false;
+            _loseText = GameObject.Find("LoseText").GetComponent<Text>();
+            _loseText.enabled = false;
 
             Players = new Dictionary<int, Player>();
             for (var i = 1; i <= PlayerCount; i++)
